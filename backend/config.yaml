@@ -1,0 +1,5 @@
+server:
+  port: 8080
+
+jwt:
+  key_path: secret/private.key
