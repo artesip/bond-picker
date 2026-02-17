@@ -3,3 +3,6 @@ server:
 
 jwt:
   key_path: secret/private.key
+
+database:
+  url: "postgresql://root:root@localhost:5434/bond_picker?"

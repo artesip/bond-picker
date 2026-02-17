@@ -1,14 +1,19 @@
 package domain
 
-type Server struct {
-	Port uint16 `yaml:"port"`
+type ServerConfig struct {
+	Port int `yaml:"port"`
 }
 
-type JWT struct {
+type JWTConfig struct {
 	Path string `yaml:"key_path"`
 }
 
+type DatabaseConfig struct {
+	Url string `yaml:"url"`
+}
+
 type Config struct {
-	Server Server `yaml:"server"`
-	JWT    JWT    `yaml:"jwt"`
+	Server   ServerConfig   `yaml:"server"`
+	JWT      JWTConfig      `yaml:"jwt"`
+	Database DatabaseConfig `yaml:"database"`
 }

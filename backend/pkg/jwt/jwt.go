@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"backend/internal/domain"
 	"crypto"
 	"fmt"
 
@@ -9,7 +10,7 @@ import (
 
 const iss = "bond-picker-auth"
 
-func GenerateToken(key crypto.PrivateKey, userId string) (string, error) {
+func GenerateToken(key crypto.PrivateKey, userId domain.UUID) (string, error) {
 	t := jwt.NewWithClaims(jwt.SigningMethodEdDSA,
 		jwt.MapClaims{
 			"iss": iss,

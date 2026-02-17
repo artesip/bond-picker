@@ -1,0 +1,31 @@
+networks:
+  network:
+    driver: bridge
+
+volumes:
+  bond_picker_postgres_data:
+
+services:
+  backend:
+    build: backend
+    container_name: bond-picker-backend
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      - database
+
+  database:
+    image: postgres:18.2
+    container_name: bond-picker-database
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "127.0.0.1:5434:5432"
+    networks:
+      - network
+    volumes:
+      - bond_picker_postgres_data:/var/lib/postgresql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
