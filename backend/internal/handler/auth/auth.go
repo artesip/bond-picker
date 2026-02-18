@@ -4,6 +4,7 @@ import (
 	"backend/internal/domain"
 	"backend/internal/repository/postgres"
 	"backend/pkg/cookie"
+	"backend/pkg/hash"
 	jwt2 "backend/pkg/jwt"
 	"crypto"
 	"errors"
@@ -35,14 +36,18 @@ func (h *handler) Login(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("user bind error: %v", err))
 	}
 
-	uuid, err := h.repo.Login(c.Request().Context(), user.Username, user.Password)
+	dbUser, err := h.repo.GetUser(c.Request().Context(), user.Username)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return c.NoContent(http.StatusUnauthorized)
+		return c.NoContent(http.StatusForbidden)
 	} else if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("user request error: %v", err))
 	}
 
-	token, err := jwt2.GenerateToken(h.jwtKey, uuid)
+	if !hash.VerifyPassword(user.Password, dbUser.Password, dbUser.Salt) {
+		return echo.NewHTTPError(http.StatusForbidden, "invalid password")
+	}
+
+	token, err := jwt2.GenerateToken(h.jwtKey, dbUser.ID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("jwt token generation error: %v", err))
 	}
@@ -60,9 +65,27 @@ func (h *handler) Register(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("user bind error: %v", err))
 	}
 
-	// repo
+	isUserExists, err := h.repo.IsUserExists(c.Request().Context(), *user)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("user request error: %v", err))
+	}
 
-	token, err := jwt2.GenerateToken(h.jwtKey, "1")
+	if isUserExists {
+		return echo.NewHTTPError(http.StatusConflict, "user already exists")
+	}
+
+	user.Password, user.Salt, err = hash.HashPassword(user.Password)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("hash password error: %v", err))
+	}
+
+	uuid, err := h.repo.Registration(c.Request().Context(), *user)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("registration request error: %v", err))
+	}
+
+	token, err := jwt2.GenerateToken(h.jwtKey, uuid)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("jwt token generation error: %v", err))
 	}
