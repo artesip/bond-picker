@@ -6,6 +6,7 @@ import (
 	"backend/internal/handler/auth"
 	"backend/internal/handler/bond"
 	"backend/internal/handler/health"
+	"backend/internal/moex"
 	postgres2 "backend/internal/repository/postgres"
 	"backend/internal/server/http"
 	"backend/pkg/config"
@@ -23,6 +24,13 @@ func main() {
 		core.Logger.Error("core init error", "error", err)
 		return
 	}
+
+	bonds, err := moex.GetBonds()
+	if err != nil {
+		return
+	}
+
+	fmt.Println(len(bonds))
 
 	if err := svc.Run(core); err != nil {
 		core.Logger.Error("start error", "error", err)
