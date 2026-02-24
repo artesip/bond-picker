@@ -9,6 +9,7 @@ import (
 
 const bondUrl = "https://iss.moex.com/iss/engines/stock/markets/bonds/securities.json"
 
+// TODO context
 func getApiBonds() (*BondResponse, error) {
 	resp, err := http.Get(bondUrl)
 	if err != nil {

@@ -32,11 +32,12 @@ type Service interface {
 	Stoppable
 
 	Init(ctx context.Context) error
+	Start(ctx context.Context) error
 }
 
 type Server interface {
 	Nameable
 	Stoppable
 
-	Start(ctx context.Context) error
+	Run(ctx context.Context) error
 }

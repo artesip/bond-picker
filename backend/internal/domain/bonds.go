@@ -28,4 +28,5 @@ type Bond struct {
 	IssueSize float64
 
 	CurrencyID string
+	BoardID    string
 }

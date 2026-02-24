@@ -31,6 +31,10 @@ func (s *Client) Init(ctx context.Context) error {
 	return nil
 }
 
+func (s *Client) Start(ctx context.Context) error {
+	return nil
+}
+
 func (s *Client) Stop(_ context.Context) error {
 	s.Pool.Close()
 

@@ -19,20 +19,26 @@ func GetBonds() ([]*domain.Bond, error) {
 	securitiesIndexMap := indexMap(response.Securities.Columns)
 	marketDataIndexMap := indexMap(response.Marketdata.Columns)
 
-	securities := lop.Map(response.Securities.Data, func(x []any, i int) *domain.Bond {
-		return securitiesExtractor(x, securitiesIndexMap)
+	securities := lo.FilterMap(response.Securities.Data, func(x []any, i int) (*domain.Bond, bool) {
+		bond := securitiesExtractor(x, securitiesIndexMap)
+		return bond, bond != nil
 	})
 
-	marketData := lop.Map(response.Marketdata.Data, func(x []any, i int) *domain.Bond {
-		return marketDataExtractor(x, marketDataIndexMap)
+	marketData := lo.FilterMap(response.Marketdata.Data, func(x []any, i int) (*domain.Bond, bool) {
+		bond := marketDataExtractor(x, marketDataIndexMap)
+		return bond, bond != nil
 	})
 
 	marketDataMap := lo.SliceToMap(marketData, func(item *domain.Bond) (string, *domain.Bond) {
 		return item.ID, item
 	})
-	
+
 	// safe no write on map
 	bonds := lop.Map(securities, func(item *domain.Bond, _ int) *domain.Bond {
+		if item == nil {
+			return nil
+		}
+
 		marketDataItem, ok := marketDataMap[item.ID]
 		if !ok {
 			return nil
@@ -44,11 +50,7 @@ func GetBonds() ([]*domain.Bond, error) {
 		return item
 	})
 
-	// TODO фильтр в репо
-	// item.Price > 0 && item.YTM != 0 && item.Duration != 0
-	return lo.Filter(bonds, func(item *domain.Bond, index int) bool {
-		return item != nil
-	}), nil
+	return bonds, nil
 }
 
 func indexMap(cols []string) map[string]int {
@@ -100,6 +102,11 @@ func securitiesExtractor(securities []any, indexMap map[string]int) *domain.Bond
 		subType = otherTypes
 	}
 
+	boardID := cast.ToString(securities[indexMap["BOARDID"]])
+	if boardID != "TQOB" {
+		return nil
+	}
+
 	return &domain.Bond{
 		ID:            cast.ToString(securities[indexMap["SECID"]]),
 		Name:          cast.ToString(securities[indexMap["SHORTNAME"]]),
@@ -114,17 +121,24 @@ func securitiesExtractor(securities []any, indexMap map[string]int) *domain.Bond
 		NextCoupon:    nextCoupon,
 		CallOption:    callDate,
 		PutOption:     putDate,
-		Accruedint:    cast.ToFloat64(securities[indexMap["ACCRUEDINT"]]),
+		Acruedint:     cast.ToFloat64(securities[indexMap["ACCRUEDINT"]]),
 		IssueSize:     cast.ToFloat64(securities[indexMap["ISSUESIZE"]]),
 		CurrencyID:    cast.ToString(securities[indexMap["CURRENCYID"]]),
+		BoardID:       boardID,
 	}
 }
 
 func marketDataExtractor(marketData []any, indexMap map[string]int) *domain.Bond {
+	boardID := cast.ToString(marketData[indexMap["BOARDID"]])
+	if boardID != "TQOB" {
+		return nil
+	}
+
 	return &domain.Bond{
 		ID:       cast.ToString(marketData[indexMap["SECID"]]),
 		Duration: cast.ToFloat64(marketData[indexMap["DURATION"]]),
 		ValToday: cast.ToFloat64(marketData[indexMap["VALTODAY"]]),
+		BoardID:  boardID,
 	}
 }
 

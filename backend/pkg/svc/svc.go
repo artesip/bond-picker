@@ -34,6 +34,23 @@ func start(rootCtx context.Context, core domain.Core) error {
 				return err
 			}
 
+			core.Logger.Info(fmt.Sprintf("%s service initialized", service.Name()))
+			return nil
+		})
+	}
+
+	if err := g.Wait(); err != nil {
+		return fmt.Errorf("service start error: %w", err)
+	}
+
+	g, ctx = errgroup.WithContext(rootCtx)
+
+	for _, service := range core.Services {
+		g.Go(func() error {
+			if err := service.Start(ctx); err != nil {
+				return err
+			}
+
 			core.Logger.Info(fmt.Sprintf("%s service started", service.Name()))
 			return nil
 		})
@@ -46,7 +63,7 @@ func start(rootCtx context.Context, core domain.Core) error {
 	g, ctx = errgroup.WithContext(rootCtx)
 	for _, server := range core.Servers {
 		g.Go(func() error {
-			if err := server.Start(ctx); err != nil {
+			if err := server.Run(ctx); err != nil {
 				return err
 			}
 

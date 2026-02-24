@@ -29,7 +29,7 @@ func NewServer(handlers []domain.Handler, config domain.ServerConfig) domain.Ser
 	return &server{handlers: handlers, echo: e, sc: &sc}
 }
 
-func (s *server) Start(ctx context.Context) error {
+func (s *server) Run(ctx context.Context) error {
 	for _, handler := range s.handlers {
 		handler.InitRoutes(s.echo)
 	}
