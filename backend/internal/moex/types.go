@@ -1,11 +1,11 @@
 package moex
 
 const (
-	fix        = "fix"
+	Fix        = "fix"
 	otherTypes = "other"
 
-	// До погашения
-	toMaturity = "to_maturity"
+	// ToMaturity До погашения
+	ToMaturity = "to_maturity"
 )
 
 type Data struct {

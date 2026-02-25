@@ -3,30 +3,31 @@ package domain
 import "time"
 
 type Bond struct {
-	ID      string
-	Name    string
-	Type    string
-	SubType string
+	ID      UUID   `json:"id"`
+	Isin    string `json:"isin"`
+	Name    string `json:"name"`
+	Type    string `json:"type"`
+	SubType string `json:"subType"`
 
-	Price    float64
-	YTM      float64
-	Duration float64
+	Price    float64 `json:"price"`
+	YTM      float64 `json:"ytm"`
+	Duration float64 `json:"duration"`
 
-	LotSize       int64
-	FaceValue     float64
-	CouponPercent float64
-	CouponPeriod  int64
-	NextCoupon    *time.Time
-	CallOption    *time.Time
-	PutOption     *time.Time
+	LotSize       int64      `json:"lotSize"`
+	FaceValue     float64    `json:"faceValue"`
+	CouponPercent float64    `json:"couponPercent"`
+	CouponPeriod  int64      `json:"couponPeriod"`
+	NextCoupon    *time.Time `json:"nextCoupon"`
+	CallOption    *time.Time `json:"callOption"`
+	PutOption     *time.Time `json:"putOption"`
 
 	// Объем торгов дня в руб
-	ValToday float64
+	ValToday float64 `json:"valToday"`
 	// НКД
-	Acruedint float64
+	Acruedint float64 `json:"acruedint"`
 	// Объем выпуска
-	IssueSize float64
+	IssueSize float64 `json:"issueSize"`
 
-	CurrencyID string
-	BoardID    string
+	CurrencyID string `json:"currencyId"`
+	BoardID    string `json:"boardId"`
 }

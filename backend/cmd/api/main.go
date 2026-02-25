@@ -52,7 +52,7 @@ func coreInit() (domain.Core, error) {
 
 	handlers := []domain.Handler{
 		health.NewHandler(),
-		bond.NewHandler(log),
+		bond.NewHandler(repo, log),
 		auth.NewHandler(log, repo, jwtKey),
 	}
 

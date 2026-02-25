@@ -30,7 +30,7 @@ func GetBonds() ([]*domain.Bond, error) {
 	})
 
 	marketDataMap := lo.SliceToMap(marketData, func(item *domain.Bond) (string, *domain.Bond) {
-		return item.ID, item
+		return item.Isin + item.BoardID, item
 	})
 
 	// safe no write on map
@@ -39,7 +39,7 @@ func GetBonds() ([]*domain.Bond, error) {
 			return nil
 		}
 
-		marketDataItem, ok := marketDataMap[item.ID]
+		marketDataItem, ok := marketDataMap[item.Isin+item.BoardID]
 		if !ok {
 			return nil
 		}
@@ -90,25 +90,25 @@ func securitiesExtractor(securities []any, indexMap map[string]int) *domain.Bond
 
 	bondType := cast.ToString(securities[indexMap["BONDTYPE"]])
 	if bondType == "Фикс с известным купоном" {
-		bondType = fix
+		bondType = Fix
 	} else {
 		bondType = otherTypes
 	}
 
 	subType := cast.ToString(securities[indexMap["BONDSUBTYPE"]])
 	if subType == "До погашения" {
-		subType = toMaturity
+		subType = ToMaturity
 	} else {
 		subType = otherTypes
 	}
 
 	boardID := cast.ToString(securities[indexMap["BOARDID"]])
-	if boardID != "TQOB" {
+	if boardID == "PACT" || boardID == "SPOB" {
 		return nil
 	}
 
 	return &domain.Bond{
-		ID:            cast.ToString(securities[indexMap["SECID"]]),
+		Isin:          cast.ToString(securities[indexMap["SECID"]]),
 		Name:          cast.ToString(securities[indexMap["SHORTNAME"]]),
 		Type:          bondType,
 		SubType:       subType,
@@ -130,12 +130,12 @@ func securitiesExtractor(securities []any, indexMap map[string]int) *domain.Bond
 
 func marketDataExtractor(marketData []any, indexMap map[string]int) *domain.Bond {
 	boardID := cast.ToString(marketData[indexMap["BOARDID"]])
-	if boardID != "TQOB" {
+	if boardID == "PACT" || boardID == "SPOB" {
 		return nil
 	}
 
 	return &domain.Bond{
-		ID:       cast.ToString(marketData[indexMap["SECID"]]),
+		Isin:     cast.ToString(marketData[indexMap["SECID"]]),
 		Duration: cast.ToFloat64(marketData[indexMap["DURATION"]]),
 		ValToday: cast.ToFloat64(marketData[indexMap["VALTODAY"]]),
 		BoardID:  boardID,

@@ -23,11 +23,13 @@ CREATE INDEX user_id_indx ON t_portfolio (user_id);
 
 CREATE TABLE IF NOT EXISTS t_bond
 (
-    id             TEXT PRIMARY KEY,
+    id             UUID DEFAULT uuidv4() PRIMARY KEY,
+    isin           TEXT,
     "name"         TEXT,
     "type"         VARCHAR(100),
     sub_type       VARCHAR(100),
-    curency_id     VARCHAR(10),
+    currency_id    VARCHAR(10),
+    board_id       VARCHAR(10),
 
     ytm            real,
     duration       real,
@@ -46,13 +48,15 @@ CREATE TABLE IF NOT EXISTS t_bond
     call_option    DATE,
 
     created_at     TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    updated_at     TIMESTAMP WITH TIME ZONE DEFAULT now()
+    updated_at     TIMESTAMP WITH TIME ZONE DEFAULT now(),
+
+    CONSTRAINT unique_isin_board UNIQUE (isin, board_id)
 );
 
 CREATE TABLE IF NOT EXISTS t_portfolio_to_bond
 (
     portfolio_id UUID references t_portfolio (id),
-    bond_id      TEXT references t_bond (id),
+    bond_id      UUID references t_bond (id),
     created_at   TIMESTAMP WITH TIME ZONE DEFAULT now(),
 
     PRIMARY KEY (portfolio_id, bond_id)
@@ -60,9 +64,9 @@ CREATE TABLE IF NOT EXISTS t_portfolio_to_bond
 
 CREATE TABLE IF NOT EXISTS t_update_status
 (
-    id         UUID                     DEFAULT uuidv7() PRIMARY KEY,
-    "status"   VARCHAR(100),
-    msg        TEXT,
-    "start"    TIMESTAMP WITH TIME ZONE,
-    "end"      TIMESTAMP WITH TIME ZONE
+    id       UUID DEFAULT uuidv7() PRIMARY KEY,
+    "status" VARCHAR(100),
+    msg      TEXT,
+    "start"  TIMESTAMP WITH TIME ZONE,
+    "end"    TIMESTAMP WITH TIME ZONE
 );

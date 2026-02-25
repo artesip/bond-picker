@@ -30,11 +30,12 @@ func (r *Repository) UpsertBonds(ctx context.Context, bonds []*domain.Bond) erro
 	}
 
 	_, err = tx.CopyFrom(ctx, pgx.Identifier{"bond_staging"},
-		[]string{"id", "name", "type", "sub_type", "price", "ytm", "duration", "lot_size", "face_value", "coupon_period",
-			"coupon_percent", "issue_size", "acruedint", "next_coupon", "put_option", "call_option", "curency_id", "val_today"},
+		[]string{"isin", "name", "type", "sub_type", "price", "ytm", "duration", "lot_size", "face_value", "coupon_period",
+			"coupon_percent", "issue_size", "acruedint", "next_coupon", "put_option", "call_option", "currency_id",
+			"val_today", "board_id"},
 		pgx.CopyFromSlice(len(bonds), func(i int) ([]interface{}, error) {
 			return []interface{}{
-				bonds[i].ID,
+				bonds[i].Isin,
 				bonds[i].Name,
 				bonds[i].Type,
 				bonds[i].SubType,
@@ -52,6 +53,7 @@ func (r *Repository) UpsertBonds(ctx context.Context, bonds []*domain.Bond) erro
 				bonds[i].CallOption,
 				bonds[i].CurrencyID,
 				bonds[i].ValToday,
+				bonds[i].BoardID,
 			}, nil
 		}),
 	)
@@ -62,19 +64,20 @@ func (r *Repository) UpsertBonds(ctx context.Context, bonds []*domain.Bond) erro
 
 	_, err = tx.Exec(ctx, `
 	    INSERT INTO t_bond (
-	        id, name, type, sub_type, price, ytm, duration, lot_size,
+	        isin, name, type, sub_type, price, ytm, duration, lot_size,
 	        face_value, coupon_period, coupon_percent, issue_size, 
 	        acruedint, next_coupon, put_option, call_option,
-	        curency_id, val_today, updated_at
+	        currency_id, val_today, board_id, updated_at
 	    )
 	    SELECT 
-	        id, name, type, sub_type, price, ytm, duration, lot_size,
+	        isin, name, type, sub_type, price, ytm, duration, lot_size,
 	        face_value, coupon_period, coupon_percent, issue_size, 
 	        acruedint, next_coupon, put_option, call_option,
-	        curency_id, val_today, now()
+	        currency_id, val_today, board_id, now()
 	    FROM bond_staging
-	    ON CONFLICT (id) DO UPDATE
+	    ON CONFLICT (isin, board_id) DO UPDATE
 	    SET 
+	        isin 		   = EXCLUDED.isin,
 	        name           = EXCLUDED.name,
 	        type           = EXCLUDED.type,
 	        sub_type       = EXCLUDED.sub_type,
@@ -90,8 +93,9 @@ func (r *Repository) UpsertBonds(ctx context.Context, bonds []*domain.Bond) erro
 	        next_coupon    = EXCLUDED.next_coupon,
 	        put_option     = EXCLUDED.put_option,
 	        call_option    = EXCLUDED.call_option,
-	        curency_id     = EXCLUDED.curency_id,
+	        currency_id    = EXCLUDED.currency_id,
 	        val_today      = EXCLUDED.val_today,
+	        board_id       = EXCLUDED.board_id,
 			updated_at     = now();
 	`)
 	if err != nil {
