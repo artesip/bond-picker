@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func (r *Repository) GetPickedBonds(ctx context.Context, userID domain.UUID) ([]domain.Bond, error) {
+func (r *Repository) GetPickedBonds(ctx context.Context, userID domain.UUID) ([]domain.BondWithCount, error) {
 	const query = `
 		SELECT 
 		    b.id,
@@ -30,7 +30,8 @@ func (r *Repository) GetPickedBonds(ctx context.Context, userID domain.UUID) ([]
 		    b.acruedint,
 		    b.issue_size,
 		    b.currency_id,
-		    b.board_id
+		    b.board_id,
+		    ptb.count
 		FROM t_portfolio p
 		JOIN t_portfolio_to_bond ptb ON p.id = ptb.portfolio_id
 		JOIN t_bond b ON b.id = ptb.bond_id
@@ -45,7 +46,7 @@ func (r *Repository) GetPickedBonds(ctx context.Context, userID domain.UUID) ([]
 	}
 	defer rows.Close()
 
-	bonds, err := pgx.CollectRows(rows, pgx.RowToStructByName[domain.Bond])
+	bonds, err := pgx.CollectRows(rows, pgx.RowToStructByName[domain.BondWithCount])
 	if err != nil {
 		return nil, fmt.Errorf("collect rows error: %w", err)
 	}

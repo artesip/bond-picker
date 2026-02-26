@@ -7,8 +7,11 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
+const CookieName = "bond-picker-auth"
+const TokenAge = 24 * 60 * 60 // 86400 секунд = 24 часа
+
 func AddCookie(c *echo.Context, name, value string) {
-	addCookie(c, 24*60*60, name, value) // 86400 секунд = 24 часа
+	addCookie(c, TokenAge, name, value)
 }
 
 func DeleteCookie(c *echo.Context, name, value string) {

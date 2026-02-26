@@ -4,9 +4,11 @@ import (
 	"backend/internal/domain"
 	"backend/internal/moex"
 	"backend/internal/repository/postgres"
+	"backend/pkg/jwt"
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/google/uuid"
 
@@ -14,12 +16,13 @@ import (
 )
 
 type handler struct {
-	logger *slog.Logger
-	repo   *postgres.Repository
+	logger      *slog.Logger
+	repo        *postgres.Repository
+	middlewares []echo.MiddlewareFunc
 }
 
-func NewHandler(repo *postgres.Repository, log *slog.Logger) domain.Handler {
-	return &handler{logger: log, repo: repo}
+func NewHandler(repo *postgres.Repository, log *slog.Logger, middlewares []echo.MiddlewareFunc) domain.Handler {
+	return &handler{logger: log, repo: repo, middlewares: middlewares}
 }
 
 func (h *handler) GetBonds(c *echo.Context) error {
@@ -52,7 +55,12 @@ func (h *handler) GetBond(c *echo.Context) error {
 }
 
 func (h *handler) GetPickedBond(c *echo.Context) error {
-	bond, err := h.repo.GetPickedBonds(c.Request().Context(), domain.UUID("019c96f7-9fbd-78a3-baa6-40f25dfa386d"))
+	userID, ok := c.Get(jwt.UserIDKey).(string)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "invalid userID")
+	}
+
+	bond, err := h.repo.GetPickedBonds(c.Request().Context(), domain.UUID(userID))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -60,8 +68,57 @@ func (h *handler) GetPickedBond(c *echo.Context) error {
 	return c.JSON(http.StatusOK, bond)
 }
 
+func (h *handler) PickBond(c *echo.Context) error {
+	id := c.Param("id")
+
+	if err := uuid.Validate(id); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("invalid id: %v", err))
+	}
+
+	userID, ok := c.Get(jwt.UserIDKey).(string)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "invalid userID")
+	}
+
+	countParam := c.QueryParam("count")
+	count, err := strconv.Atoi(countParam)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("invalid count: %v", err))
+	}
+
+	err = h.repo.PickBond(c.Request().Context(), domain.UUID(id), domain.UUID(userID), count)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
+func (h *handler) DeletePickedBond(c *echo.Context) error {
+	id := c.Param("id")
+	if err := uuid.Validate(id); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("invalid id: %v", err))
+	}
+
+	userID, ok := c.Get(jwt.UserIDKey).(string)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "invalid userID")
+	}
+
+	err := h.repo.UnpickBond(c.Request().Context(), domain.UUID(id), domain.UUID(userID))
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
 func (h *handler) InitRoutes(e *echo.Echo) {
-	e.GET("/api/v1/bond", h.GetBonds)
-	e.GET("/api/v1/bond/pick", h.GetPickedBond)
-	e.GET("/api/v1/bond/:id", h.GetBond)
+	e.GET("/api/v1/bond", h.GetBonds, h.middlewares...)
+	e.GET("/api/v1/bond/pick", h.GetPickedBond, h.middlewares...)
+	e.GET("/api/v1/bond/:id", h.GetBond, h.middlewares...)
+	e.POST("/api/v1/bond/pick/:id", h.PickBond, h.middlewares...)
+	e.DELETE("/api/v1/bond/pick/:id", h.DeletePickedBond, h.middlewares...)
 }

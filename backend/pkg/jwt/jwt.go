@@ -2,8 +2,10 @@ package jwt
 
 import (
 	"backend/internal/domain"
+	"backend/pkg/cookie"
 	"crypto"
 	"fmt"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -15,6 +17,7 @@ func GenerateToken(key crypto.PrivateKey, userId domain.UUID) (string, error) {
 		jwt.MapClaims{
 			"iss": iss,
 			"sub": userId,
+			"exp": time.Now().Add(time.Duration(cookie.TokenAge) * time.Second).Unix(),
 		})
 
 	token, err := t.SignedString(key)

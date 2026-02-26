@@ -26,8 +26,6 @@ func NewHandler(log *slog.Logger, repo *postgres.Repository, jwtKey crypto.Priva
 	return &handler{logger: log, jwtKey: jwtKey, repo: repo}
 }
 
-const cookieName = "bond-picker-auth"
-
 func (h *handler) Login(c *echo.Context) error {
 	user := new(domain.User)
 
@@ -52,7 +50,7 @@ func (h *handler) Login(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("jwt token generation error: %v", err))
 	}
 
-	cookie.AddCookie(c, cookieName, token)
+	cookie.AddCookie(c, cookie.CookieName, token)
 
 	return c.NoContent(http.StatusOK)
 }
@@ -90,13 +88,13 @@ func (h *handler) Register(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("jwt token generation error: %v", err))
 	}
 
-	cookie.AddCookie(c, cookieName, token)
+	cookie.AddCookie(c, cookie.CookieName, token)
 
 	return c.NoContent(http.StatusOK)
 }
 
 func (h *handler) Logout(c *echo.Context) error {
-	cookie.DeleteCookie(c, cookieName, "")
+	cookie.DeleteCookie(c, cookie.CookieName, "")
 
 	return c.NoContent(http.StatusOK)
 }

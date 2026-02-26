@@ -31,3 +31,8 @@ type Bond struct {
 	CurrencyID string `json:"currencyId"`
 	BoardID    string `json:"boardId"`
 }
+
+type BondWithCount struct {
+	Bond
+	Count int64 `json:"count"`
+}

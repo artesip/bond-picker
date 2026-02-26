@@ -23,7 +23,7 @@ CREATE INDEX user_id_indx ON t_portfolio (user_id);
 
 CREATE TABLE IF NOT EXISTS t_bond
 (
-    id             UUID DEFAULT uuidv4() PRIMARY KEY,
+    id             UUID                     DEFAULT uuidv4() PRIMARY KEY,
     isin           TEXT,
     "name"         TEXT,
     "type"         VARCHAR(100),
@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS t_portfolio_to_bond
 (
     portfolio_id UUID references t_portfolio (id),
     bond_id      UUID references t_bond (id),
+    count        bigint,
     created_at   TIMESTAMP WITH TIME ZONE DEFAULT now(),
 
     PRIMARY KEY (portfolio_id, bond_id)

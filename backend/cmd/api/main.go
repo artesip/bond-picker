@@ -14,6 +14,8 @@ import (
 	"backend/pkg/logger"
 	"backend/pkg/svc"
 	"fmt"
+
+	"github.com/labstack/echo/v5"
 )
 
 const configPath = "config.yaml"
@@ -35,7 +37,10 @@ func coreInit() (domain.Core, error) {
 	config := config.LoadConfig(configPath)
 
 	log := logger.New()
-	jwtKey := jwt.LoadKey(config.JWT.Path, log)
+	privateKey, publicKey, err := jwt.LoadKeys(config.JWT.Path)
+	if err != nil {
+		return domain.Core{}, fmt.Errorf("load jwt key error: %w", err)
+	}
 
 	db, err := postgres.NewService(config.Database)
 	if err != nil {
@@ -50,10 +55,14 @@ func coreInit() (domain.Core, error) {
 		bondStarter,
 	}
 
+	middlewares := []echo.MiddlewareFunc{
+		jwt.Middleware(publicKey),
+	}
+
 	handlers := []domain.Handler{
 		health.NewHandler(),
-		bond.NewHandler(repo, log),
-		auth.NewHandler(log, repo, jwtKey),
+		bond.NewHandler(repo, log, middlewares),
+		auth.NewHandler(log, repo, privateKey),
 	}
 
 	servers := []domain.Server{
