@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/internal/cron"
 	"backend/internal/database/postgres"
 	"backend/internal/domain"
 	"backend/internal/handler/auth"
@@ -8,12 +9,14 @@ import (
 	"backend/internal/handler/health"
 	postgres2 "backend/internal/repository/postgres"
 	"backend/internal/server/http"
+	"backend/internal/service"
 	"backend/internal/starter"
 	"backend/pkg/config"
 	"backend/pkg/jwt"
 	"backend/pkg/logger"
 	"backend/pkg/svc"
 	"fmt"
+	"time"
 
 	"github.com/labstack/echo/v5"
 )
@@ -48,11 +51,17 @@ func coreInit() (domain.Core, error) {
 	}
 
 	repo := postgres2.NewRepository(db)
-	bondStarter := starter.New(repo, log)
+
+	bondService := service.New(repo, log)
+
+	bondStarter := starter.New(repo, bondService, log)
+
+	cronService, err := cron.New(10*time.Second, bondService)
 
 	services := []domain.Service{
 		db,
 		bondStarter,
+		cronService,
 	}
 
 	middlewares := []echo.MiddlewareFunc{

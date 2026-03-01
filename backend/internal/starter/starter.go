@@ -2,8 +2,8 @@ package starter
 
 import (
 	"backend/internal/domain"
-	"backend/internal/moex"
 	"backend/internal/repository/postgres"
+	"backend/internal/service"
 	"context"
 	"fmt"
 	"log/slog"
@@ -11,12 +11,13 @@ import (
 )
 
 type bondStarter struct {
-	repo   *postgres.Repository
-	logger *slog.Logger
+	repo    *postgres.Repository
+	service *service.BondService
+	logger  *slog.Logger
 }
 
-func New(r *postgres.Repository, logger *slog.Logger) domain.Service {
-	return &bondStarter{repo: r, logger: logger}
+func New(r *postgres.Repository, s *service.BondService, l *slog.Logger) domain.Service {
+	return &bondStarter{service: s, logger: l, repo: r}
 }
 
 func (b *bondStarter) Name() string {
@@ -36,26 +37,11 @@ func (b *bondStarter) Start(ctx context.Context) (err error) {
 		return nil
 	}
 
-	if err := b.repo.CreateUpdateEvent(ctx, start); err != nil {
+	err = b.service.UpdateBonds(ctx, start)
+	if err != nil {
 		return fmt.Errorf("bond-starter start error: %w", err)
 	}
-	defer func() {
-		b.changeUpdateEventStatus(ctx, start, err)
-	}()
 
-	bonds, err := moex.GetBonds()
-	if err != nil {
-		return fmt.Errorf("bond-starter get bonds error: %w", err)
-	}
-
-	err = b.repo.UpsertBonds(ctx, bonds)
-	if err != nil {
-		return fmt.Errorf("bond-starter upsert error: %w", err)
-	}
-
-	time.Sleep(10 * time.Second)
-
-	b.logger.Info("bond-starter successfully loaded bond data")
 	return nil
 }
 
@@ -65,20 +51,4 @@ func (b *bondStarter) Init(ctx context.Context) error {
 
 func (b *bondStarter) Stop(ctx context.Context) error {
 	return nil
-}
-
-func (b *bondStarter) changeUpdateEventStatus(ctx context.Context, start time.Time, err error) {
-	status := "success"
-	msg := ""
-	if err != nil {
-		status = "error"
-		msg = err.Error()
-	}
-
-	end := time.Now()
-
-	err = b.repo.ChangeUpdateEventStatus(ctx, status, msg, start, end)
-	if err != nil {
-		b.logger.Error("failed to update status", "error", err)
-	}
 }
