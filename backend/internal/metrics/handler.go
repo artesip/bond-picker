@@ -1,7 +1,7 @@
-package health
+package metrics
 
 import (
-	"backend/internal/domain"
+	"backend/pkg/svc"
 	"net/http"
 
 	"github.com/labstack/echo/v5"
@@ -9,7 +9,7 @@ import (
 
 type handler struct{}
 
-func NewHandler() domain.Handler {
+func NewHandler() svc.Handler {
 	return &handler{}
 }
 

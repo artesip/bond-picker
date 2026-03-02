@@ -1,9 +1,8 @@
-package starter
+package bond
 
 import (
-	"backend/internal/domain"
-	"backend/internal/repository/postgres"
-	"backend/internal/service"
+	"backend/internal/adapter/postgres"
+	"backend/pkg/svc"
 	"context"
 	"fmt"
 	"log/slog"
@@ -12,12 +11,12 @@ import (
 
 type bondStarter struct {
 	repo    *postgres.Repository
-	service *service.BondService
+	useCase *UseCase
 	logger  *slog.Logger
 }
 
-func New(r *postgres.Repository, s *service.BondService, l *slog.Logger) domain.Service {
-	return &bondStarter{service: s, logger: l, repo: r}
+func NewStarterService(r *postgres.Repository, u *UseCase, l *slog.Logger) svc.Service {
+	return &bondStarter{useCase: u, logger: l, repo: r}
 }
 
 func (b *bondStarter) Name() string {
@@ -37,7 +36,7 @@ func (b *bondStarter) Start(ctx context.Context) (err error) {
 		return nil
 	}
 
-	err = b.service.UpdateBonds(ctx, start)
+	err = b.useCase.UpdateBonds(ctx, start)
 	if err != nil {
 		return fmt.Errorf("bond-starter start error: %w", err)
 	}

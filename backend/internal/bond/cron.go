@@ -1,8 +1,7 @@
-package cron
+package bond
 
 import (
-	"backend/internal/domain"
-	"backend/internal/service"
+	"backend/pkg/svc"
 	"context"
 	"fmt"
 	"time"
@@ -12,10 +11,9 @@ import (
 
 type cron struct {
 	scheduler gocron.Scheduler
-	service   *service.BondService
 }
 
-func New(duration time.Duration, service *service.BondService) (domain.Service, error) {
+func NewCronService(duration time.Duration, u *UseCase) (svc.Service, error) {
 	s, err := gocron.NewScheduler()
 	if err != nil {
 		return nil, fmt.Errorf("cron scheduler creation error: %w", err)
@@ -26,7 +24,7 @@ func New(duration time.Duration, service *service.BondService) (domain.Service, 
 			duration,
 		),
 		gocron.NewTask(
-			service.UpdateBonds,
+			u.UpdateBonds,
 			context.Background(),
 			time.Now(),
 		),

@@ -1,10 +1,11 @@
 package bond
 
 import (
+	"backend/internal/adapter/postgres"
 	"backend/internal/domain"
-	"backend/internal/moex"
-	"backend/internal/repository/postgres"
 	"backend/pkg/jwt"
+	"backend/pkg/moex"
+	"backend/pkg/svc"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -21,7 +22,7 @@ type handler struct {
 	middlewares []echo.MiddlewareFunc
 }
 
-func NewHandler(repo *postgres.Repository, log *slog.Logger, middlewares []echo.MiddlewareFunc) domain.Handler {
+func NewHandler(repo *postgres.Repository, log *slog.Logger, middlewares []echo.MiddlewareFunc) svc.Handler {
 	return &handler{logger: log, repo: repo, middlewares: middlewares}
 }
 

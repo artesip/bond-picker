@@ -1,7 +1,8 @@
 package http
 
 import (
-	"backend/internal/domain"
+	"backend/pkg/config"
+	"backend/pkg/svc"
 	"context"
 	"strconv"
 	"time"
@@ -11,13 +12,13 @@ import (
 )
 
 type server struct {
-	handlers []domain.Handler
+	handlers []svc.Handler
 
 	echo *echo.Echo
 	sc   *echo.StartConfig
 }
 
-func NewServer(handlers []domain.Handler, config domain.ServerConfig) domain.Server {
+func NewServer(handlers []svc.Handler, config config.ServerConfig) svc.Server {
 	e := echo.New()
 	e.Use(middleware.RequestLogger())
 

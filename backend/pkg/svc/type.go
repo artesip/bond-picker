@@ -1,6 +1,7 @@
-package domain
+package svc
 
 import (
+	"backend/pkg/config"
 	"context"
 	"log/slog"
 
@@ -9,7 +10,7 @@ import (
 
 type Core struct {
 	Logger   *slog.Logger
-	Config   *Config
+	Config   *config.Config
 	Handlers []Handler
 	Services []Service
 	Servers  []Server

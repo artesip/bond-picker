@@ -1,24 +1,24 @@
-package service
+package bond
 
 import (
-	"backend/internal/moex"
-	"backend/internal/repository/postgres"
+	"backend/internal/adapter/postgres"
+	"backend/pkg/moex"
 	"context"
 	"fmt"
 	"log/slog"
 	"time"
 )
 
-type BondService struct {
+type UseCase struct {
 	logger *slog.Logger
 	repo   *postgres.Repository
 }
 
-func New(repo *postgres.Repository, log *slog.Logger) *BondService {
-	return &BondService{repo: repo, logger: log}
+func NewUseCase(repo *postgres.Repository, log *slog.Logger) *UseCase {
+	return &UseCase{repo: repo, logger: log}
 }
 
-func (b *BondService) UpdateBonds(ctx context.Context, start time.Time) (err error) {
+func (b *UseCase) UpdateBonds(ctx context.Context, start time.Time) (err error) {
 	if err := b.repo.CreateUpdateEvent(ctx, start); err != nil {
 		return fmt.Errorf("bond-starter start error: %w", err)
 	}
@@ -41,7 +41,7 @@ func (b *BondService) UpdateBonds(ctx context.Context, start time.Time) (err err
 	return nil
 }
 
-func (b *BondService) changeUpdateEventStatus(ctx context.Context, start time.Time, err error) {
+func (b *UseCase) changeUpdateEventStatus(ctx context.Context, start time.Time, err error) {
 	status := "success"
 	msg := ""
 	if err != nil {

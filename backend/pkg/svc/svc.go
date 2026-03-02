@@ -1,7 +1,6 @@
 package svc
 
 import (
-	"backend/internal/domain"
 	"context"
 	"fmt"
 	"os/signal"
@@ -11,7 +10,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func Run(core domain.Core) error {
+func Run(core Core) error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
@@ -25,7 +24,7 @@ func Run(core domain.Core) error {
 	return allStop(core)
 }
 
-func start(rootCtx context.Context, core domain.Core) error {
+func start(rootCtx context.Context, core Core) error {
 	g, ctx := errgroup.WithContext(rootCtx)
 
 	for _, service := range core.Services {
@@ -40,7 +39,7 @@ func start(rootCtx context.Context, core domain.Core) error {
 	}
 
 	if err := g.Wait(); err != nil {
-		return fmt.Errorf("service start error: %w", err)
+		return fmt.Errorf("usecase start error: %w", err)
 	}
 
 	g, ctx = errgroup.WithContext(rootCtx)
@@ -78,7 +77,7 @@ func start(rootCtx context.Context, core domain.Core) error {
 	return nil
 }
 
-func allStop(core domain.Core) error {
+func allStop(core Core) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

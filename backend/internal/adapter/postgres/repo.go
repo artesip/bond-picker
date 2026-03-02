@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"backend/internal/database/postgres"
+	"backend/pkg/postgres"
 )
 
 type Repository struct {

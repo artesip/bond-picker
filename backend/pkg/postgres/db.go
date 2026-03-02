@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"backend/internal/domain"
+	"backend/pkg/config"
 	"context"
 	"fmt"
 
@@ -13,7 +13,7 @@ type Client struct {
 	Pool *pgxpool.Pool
 }
 
-func NewService(config domain.DatabaseConfig) (*Client, error) {
+func NewService(config config.DatabaseConfig) (*Client, error) {
 	dbCfg, err := pgxpool.ParseConfig(config.Url)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing database config: %w", err)

@@ -1,19 +1,15 @@
 package main
 
 import (
-	"backend/internal/cron"
-	"backend/internal/database/postgres"
-	"backend/internal/domain"
-	"backend/internal/handler/auth"
-	"backend/internal/handler/bond"
-	"backend/internal/handler/health"
-	postgres2 "backend/internal/repository/postgres"
-	"backend/internal/server/http"
-	"backend/internal/service"
-	"backend/internal/starter"
+	postgres2 "backend/internal/adapter/postgres"
+	"backend/internal/auth"
+	"backend/internal/bond"
+	"backend/internal/metrics"
 	"backend/pkg/config"
 	"backend/pkg/jwt"
 	"backend/pkg/logger"
+	"backend/pkg/postgres"
+	"backend/pkg/server/http"
 	"backend/pkg/svc"
 	"fmt"
 	"time"
@@ -36,31 +32,33 @@ func main() {
 	}
 }
 
-func coreInit() (domain.Core, error) {
+func coreInit() (svc.Core, error) {
 	config := config.LoadConfig(configPath)
 
 	log := logger.New()
 	privateKey, publicKey, err := jwt.LoadKeys(config.JWT.Path)
 	if err != nil {
-		return domain.Core{}, fmt.Errorf("load jwt key error: %w", err)
+		return svc.Core{}, fmt.Errorf("load jwt key error: %w", err)
 	}
 
 	db, err := postgres.NewService(config.Database)
 	if err != nil {
-		return domain.Core{}, fmt.Errorf("error connecting to database: %w", err)
+		return svc.Core{}, fmt.Errorf("error connecting to database: %w", err)
 	}
 
 	repo := postgres2.NewRepository(db)
 
-	bondService := service.New(repo, log)
+	bondUseCase := bond.NewUseCase(repo, log)
 
-	bondStarter := starter.New(repo, bondService, log)
+	authUseCase := auth.NewUseCase(repo, log)
 
-	cronService, err := cron.New(10*time.Second, bondService)
+	bondStarterService := bond.NewStarterService(repo, bondUseCase, log)
 
-	services := []domain.Service{
+	cronService, err := bond.NewCronService(1*time.Minute, bondUseCase)
+
+	services := []svc.Service{
 		db,
-		bondStarter,
+		bondStarterService,
 		cronService,
 	}
 
@@ -68,15 +66,15 @@ func coreInit() (domain.Core, error) {
 		jwt.Middleware(publicKey),
 	}
 
-	handlers := []domain.Handler{
-		health.NewHandler(),
+	handlers := []svc.Handler{
+		metrics.NewHandler(),
 		bond.NewHandler(repo, log, middlewares),
-		auth.NewHandler(log, repo, privateKey),
+		auth.NewHandler(log, repo, privateKey, authUseCase),
 	}
 
-	servers := []domain.Server{
+	servers := []svc.Server{
 		http.NewServer(handlers, config.Server),
 	}
 
-	return domain.Core{Logger: log, Config: config, Handlers: handlers, Services: services, Servers: servers}, nil
+	return svc.Core{Logger: log, Config: config, Handlers: handlers, Services: services, Servers: servers}, nil
 }
