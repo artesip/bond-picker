@@ -12,7 +12,6 @@ import (
 	"backend/pkg/server/http"
 	"backend/pkg/svc"
 	"fmt"
-	"time"
 
 	"github.com/labstack/echo/v5"
 )
@@ -33,15 +32,15 @@ func main() {
 }
 
 func coreInit() (svc.Core, error) {
-	config := config.LoadConfig(configPath)
+	cfg := config.LoadConfig(configPath)
 
 	log := logger.New()
-	privateKey, publicKey, err := jwt.LoadKeys(config.JWT.Path)
+	privateKey, publicKey, err := jwt.LoadKeys(cfg.JWT.Path)
 	if err != nil {
 		return svc.Core{}, fmt.Errorf("load jwt key error: %w", err)
 	}
 
-	db, err := postgres.NewService(config.Database)
+	db, err := postgres.NewService(cfg.Database)
 	if err != nil {
 		return svc.Core{}, fmt.Errorf("error connecting to database: %w", err)
 	}
@@ -54,7 +53,7 @@ func coreInit() (svc.Core, error) {
 
 	bondStarterService := bond.NewStarterService(repo, bondUseCase, log)
 
-	cronService, err := bond.NewCronService(1*time.Minute, bondUseCase)
+	cronService, err := bond.NewCronService(cfg.Cron.Str, bondUseCase)
 
 	services := []svc.Service{
 		db,
@@ -73,8 +72,8 @@ func coreInit() (svc.Core, error) {
 	}
 
 	servers := []svc.Server{
-		http.NewServer(handlers, config.Server),
+		http.NewServer(handlers, cfg.Server),
 	}
 
-	return svc.Core{Logger: log, Config: config, Handlers: handlers, Services: services, Servers: servers}, nil
+	return svc.Core{Logger: log, Config: cfg, Handlers: handlers, Services: services, Servers: servers}, nil
 }

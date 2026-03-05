@@ -4,7 +4,6 @@ import (
 	"backend/pkg/svc"
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/go-co-op/gocron/v2"
 )
@@ -13,15 +12,16 @@ type cron struct {
 	scheduler gocron.Scheduler
 }
 
-func NewCronService(duration time.Duration, u *UseCase) (svc.Service, error) {
+func NewCronService(cronStr string, u *UseCase) (svc.Service, error) {
 	s, err := gocron.NewScheduler()
 	if err != nil {
 		return nil, fmt.Errorf("cron scheduler creation error: %w", err)
 	}
 
 	_, err = s.NewJob(
-		gocron.DurationJob(
-			duration,
+		gocron.CronJob(
+			cronStr,
+			false,
 		),
 		gocron.NewTask(
 			u.UpdateBondsWithoutStartTime,
