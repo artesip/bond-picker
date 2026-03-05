@@ -2,18 +2,22 @@ package moex
 
 import (
 	"backend/internal/domain"
+	"context"
 	"fmt"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/spf13/cast"
+	"golang.org/x/time/rate"
 )
 
-func GetBonds() ([]*domain.Bond, error) {
+func GetBonds() ([]*domain.Bond, []*domain.Company, error) {
 	response, err := getApiBonds()
 	if err != nil {
-		return nil, fmt.Errorf("api request error: %s", err)
+		return nil, nil, fmt.Errorf("api request error: %s", err)
 	}
 
 	securitiesIndexMap := indexMap(response.Securities.Columns)
@@ -46,11 +50,42 @@ func GetBonds() ([]*domain.Bond, error) {
 
 		item.Duration = marketDataItem.Duration
 		item.ValToday = marketDataItem.ValToday
+		item.YTM = marketDataItem.YTM
+		item.Price = marketDataItem.Price
 
 		return item
 	})
 
-	return bonds, nil
+	var companyMap map[string]int
+	var once sync.Once
+	var companies []*domain.Company
+	limiter := rate.NewLimiter(200, 1)
+	lop.ForEach(bonds, func(item *domain.Bond, _ int) {
+		_ = limiter.Wait(context.Background())
+
+		data, err := getCompanyDataByID(item.Isin)
+		if err != nil {
+			return
+		}
+
+		once.Do(func() {
+			companyMap = indexMap(data.Securities.Columns)
+		})
+
+		if len(data.Securities.Data) == 0 {
+			return
+		}
+
+		company := companyExtractor(data.Securities.Data[0], companyMap)
+		if company == nil {
+			fmt.Println("nil")
+			return
+		}
+		companies = append(companies, company)
+		item.CompanyID = company.ID
+	})
+
+	return bonds, companies, nil
 }
 
 func indexMap(cols []string) map[string]int {
@@ -67,16 +102,7 @@ func securitiesExtractor(securities []any, indexMap map[string]int) *domain.Bond
 	callDate := dateParse(cast.ToString(securities[indexMap["CALLOPTIONDATE"]]))
 	putDate := dateParse(cast.ToString(securities[indexMap["PUTOPTIONDATE"]]))
 	nextCoupon := dateParse(cast.ToString(securities[indexMap["NEXTCOUPON"]]))
-
-	price, err := cast.ToFloat64E(securities[indexMap["PREVPRICE"]])
-	if err != nil {
-		return nil
-	}
-
-	ytm, err := cast.ToFloat64E(securities[indexMap["YIELDATPREVWAPRICE"]])
-	if err != nil {
-		return nil
-	}
+	matDate, _ := cast.StringToDate(cast.ToString(securities[indexMap["MATDATE"]]))
 
 	couponPercent, err := cast.ToFloat64E(securities[indexMap["COUPONPERCENT"]])
 	if err != nil {
@@ -112,8 +138,6 @@ func securitiesExtractor(securities []any, indexMap map[string]int) *domain.Bond
 		Name:          cast.ToString(securities[indexMap["SHORTNAME"]]),
 		Type:          bondType,
 		SubType:       subType,
-		Price:         price,
-		YTM:           ytm,
 		LotSize:       cast.ToInt64(securities[indexMap["LOTSIZE"]]),
 		FaceValue:     cast.ToFloat64(securities[indexMap["FACEVALUE"]]),
 		CouponPercent: couponPercent,
@@ -121,6 +145,7 @@ func securitiesExtractor(securities []any, indexMap map[string]int) *domain.Bond
 		NextCoupon:    nextCoupon,
 		CallOption:    callDate,
 		PutOption:     putDate,
+		MatDate:       matDate,
 		Acruedint:     cast.ToFloat64(securities[indexMap["ACCRUEDINT"]]),
 		IssueSize:     cast.ToFloat64(securities[indexMap["ISSUESIZE"]]),
 		CurrencyID:    cast.ToString(securities[indexMap["CURRENCYID"]]),
@@ -134,11 +159,50 @@ func marketDataExtractor(marketData []any, indexMap map[string]int) *domain.Bond
 		return nil
 	}
 
+	ytm, err := cast.ToFloat64E(marketData[indexMap["YIELD"]])
+	if err != nil {
+		return nil
+	}
+
+	price, err := cast.ToFloat64E(marketData[indexMap["BID"]])
+	if err != nil {
+		return nil
+	}
+
 	return &domain.Bond{
 		Isin:     cast.ToString(marketData[indexMap["SECID"]]),
 		Duration: cast.ToFloat64(marketData[indexMap["DURATION"]]),
 		ValToday: cast.ToFloat64(marketData[indexMap["VALTODAY"]]),
+		YTM:      ytm,
+		Price:    price,
 		BoardID:  boardID,
+	}
+}
+
+func clearName(name string) string {
+	if strings.Contains(name, `"`) {
+		lastQuote := strings.LastIndex(name, `"`)
+		firstQuote := strings.Index(name[:lastQuote], `"`)
+
+		if firstQuote == -1 {
+			return name
+		}
+
+		return clearName(name[firstQuote+1 : lastQuote])
+	}
+
+	return name
+}
+
+func companyExtractor(companyData []any, indexMap map[string]int) *domain.Company {
+	name := cast.ToString(companyData[indexMap["emitent_title"]])
+	inn := cast.ToString(companyData[indexMap["emitent_inn"]])
+
+	name = clearName(name)
+
+	return &domain.Company{
+		ID:   inn,
+		Name: name,
 	}
 }
 

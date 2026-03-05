@@ -21,9 +21,17 @@ CREATE TABLE IF NOT EXISTS t_portfolio
 
 CREATE INDEX user_id_indx ON t_portfolio (user_id);
 
+CREATE TABLE IF NOT EXISTS t_company
+(
+    id   TEXT PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS t_bond
 (
     id             UUID                     DEFAULT uuidv4() PRIMARY KEY,
+    company_id     TEXT references t_company (id),
+    
     isin           TEXT,
     "name"         TEXT,
     "type"         VARCHAR(100),
@@ -46,6 +54,7 @@ CREATE TABLE IF NOT EXISTS t_bond
     next_coupon    DATE,
     put_option     DATE,
     call_option    DATE,
+    mat_date       DATE,
 
     created_at     TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at     TIMESTAMP WITH TIME ZONE DEFAULT now(),

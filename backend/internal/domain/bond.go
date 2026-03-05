@@ -3,23 +3,26 @@ package domain
 import "time"
 
 type Bond struct {
-	ID      UUID   `json:"id"`
-	Isin    string `json:"isin"`
-	Name    string `json:"name"`
-	Type    string `json:"type"`
-	SubType string `json:"subType"`
+	ID        UUID   `json:"id"`
+	CompanyID string `json:"company_id"`
+	Isin      string `json:"isin"`
+	Name      string `json:"name"`
+	Type      string `json:"type"`
+	SubType   string `json:"subType"`
 
 	Price    float64 `json:"price"`
 	YTM      float64 `json:"ytm"`
 	Duration float64 `json:"duration"`
 
-	LotSize       int64      `json:"lotSize"`
-	FaceValue     float64    `json:"faceValue"`
-	CouponPercent float64    `json:"couponPercent"`
-	CouponPeriod  int64      `json:"couponPeriod"`
-	NextCoupon    *time.Time `json:"nextCoupon"`
-	CallOption    *time.Time `json:"callOption"`
-	PutOption     *time.Time `json:"putOption"`
+	LotSize       int64   `json:"lotSize"`
+	FaceValue     float64 `json:"faceValue"`
+	CouponPercent float64 `json:"couponPercent"`
+	CouponPeriod  int64   `json:"couponPeriod"`
+
+	NextCoupon *time.Time `json:"nextCoupon"`
+	CallOption *time.Time `json:"callOption"`
+	PutOption  *time.Time `json:"putOption"`
+	MatDate    time.Time  `json:"matDate"`
 
 	// Объем торгов дня в руб
 	ValToday float64 `json:"valToday"`
@@ -30,6 +33,11 @@ type Bond struct {
 
 	CurrencyID string `json:"currencyId"`
 	BoardID    string `json:"boardId"`
+}
+
+type BondWithCompany struct {
+	Bond
+	Company Company
 }
 
 type BondWithCount struct {

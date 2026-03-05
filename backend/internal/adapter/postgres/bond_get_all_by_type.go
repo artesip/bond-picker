@@ -30,7 +30,9 @@ func (r *Repository) GetBonds(ctx context.Context, bondType, subType string) ([]
 		    b.acruedint,
 		    b.issue_size,
 		    b.currency_id,
-		    b.board_id
+		    b.board_id,
+		    b.company_id,
+		    b.mat_date
 		FROM t_bond b
 		WHERE b.type = @type AND b.sub_type = @subType
 	`

@@ -17,3 +17,7 @@ type BondResponse struct {
 	Securities Data `json:"securities"`
 	Marketdata Data `json:"marketdata"`
 }
+
+type CompanyResponse struct {
+	Securities Data `json:"securities"`
+}

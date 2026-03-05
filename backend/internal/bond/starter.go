@@ -24,6 +24,7 @@ func (b *bondStarter) Name() string {
 }
 
 func (b *bondStarter) Start(ctx context.Context) (err error) {
+	b.logger.Info("bond-starter service starting...")
 	start := time.Now()
 
 	hasData, err := b.repo.HasAnyBondData(ctx)

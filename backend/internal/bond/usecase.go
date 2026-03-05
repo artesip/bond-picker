@@ -27,17 +27,26 @@ func (b *UseCase) UpdateBonds(ctx context.Context, start time.Time) (err error) 
 		b.changeUpdateEventStatus(ctx, start, err)
 	}()
 
-	bonds, err := moex.GetBonds()
+	bonds, companies, err := moex.GetBonds()
 	if err != nil {
 		return fmt.Errorf("bond-starter get bonds error: %w", err)
 	}
 
-	err = b.repo.UpsertBonds(ctx, bonds)
+	err = b.repo.UpsertBondsAndCompanies(ctx, bonds, companies)
 	if err != nil {
 		return fmt.Errorf("bond-starter upsert error: %w", err)
 	}
 
 	b.logger.Info("successfully updated bond data")
+	return nil
+}
+
+func (b *UseCase) UpdateBondsWithoutStartTime(ctx context.Context) error {
+	err := b.UpdateBonds(ctx, time.Now())
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

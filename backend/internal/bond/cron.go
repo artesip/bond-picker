@@ -24,9 +24,8 @@ func NewCronService(duration time.Duration, u *UseCase) (svc.Service, error) {
 			duration,
 		),
 		gocron.NewTask(
-			u.UpdateBonds,
+			u.UpdateBondsWithoutStartTime,
 			context.Background(),
-			time.Now(),
 		),
 	)
 
@@ -37,17 +36,17 @@ func (c *cron) Name() string {
 	return "bond-cron"
 }
 
-func (c *cron) Init(ctx context.Context) error {
+func (c *cron) Init(_ context.Context) error {
 	return nil
 }
 
-func (c *cron) Start(ctx context.Context) error {
+func (c *cron) Start(_ context.Context) error {
 	c.scheduler.Start()
 
 	return nil
 }
 
-func (c *cron) Stop(ctx context.Context) error {
+func (c *cron) Stop(_ context.Context) error {
 	err := c.scheduler.Shutdown()
 
 	if err != nil {
