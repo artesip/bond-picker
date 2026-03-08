@@ -15,7 +15,9 @@ type UseCase struct {
 }
 
 func NewUseCase(repo *postgres.Repository, log *slog.Logger) *UseCase {
-	return &UseCase{repo: repo, logger: log}
+	child := log.With("type", "external")
+
+	return &UseCase{repo: repo, logger: child}
 }
 
 func (b *UseCase) UpdateBonds(ctx context.Context, start time.Time) (err error) {
@@ -27,7 +29,7 @@ func (b *UseCase) UpdateBonds(ctx context.Context, start time.Time) (err error) 
 		b.changeUpdateEventStatus(ctx, start, err)
 	}()
 
-	bonds, companies, err := moex.GetBonds()
+	bonds, companies, err := moex.GetBonds(ctx)
 	if err != nil {
 		return fmt.Errorf("bond-starter get bonds error: %w", err)
 	}
@@ -37,7 +39,7 @@ func (b *UseCase) UpdateBonds(ctx context.Context, start time.Time) (err error) 
 		return fmt.Errorf("bond-starter upsert error: %w", err)
 	}
 
-	b.logger.Info("successfully updated bond data")
+	b.logger.Info("successfully update bond data", slog.Float64("update-seconds", time.Since(start).Seconds()))
 	return nil
 }
 

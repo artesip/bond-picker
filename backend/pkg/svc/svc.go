@@ -78,7 +78,7 @@ func start(rootCtx context.Context, core Core) error {
 }
 
 func allStop(core Core) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
 	g, ctx := errgroup.WithContext(ctx)

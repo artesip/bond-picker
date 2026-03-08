@@ -18,5 +18,5 @@ func (h *handler) Ping(c *echo.Context) error {
 }
 
 func (h *handler) InitRoutes(e *echo.Echo) {
-	e.GET("/ping", h.Ping)
+	e.GET("/api/v1/metric/ping", h.Ping)
 }

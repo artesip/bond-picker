@@ -14,8 +14,8 @@ import (
 	"golang.org/x/time/rate"
 )
 
-func GetBonds() ([]*domain.Bond, []*domain.Company, error) {
-	response, err := getApiBonds()
+func GetBonds(ctx context.Context) ([]*domain.Bond, []*domain.Company, error) {
+	response, err := getApiBonds(ctx)
 	if err != nil {
 		return nil, nil, fmt.Errorf("api request error: %s", err)
 	}
@@ -63,7 +63,7 @@ func GetBonds() ([]*domain.Bond, []*domain.Company, error) {
 	lop.ForEach(bonds, func(item *domain.Bond, _ int) {
 		_ = limiter.Wait(context.Background())
 
-		data, err := getCompanyDataByID(item.Isin)
+		data, err := getCompanyDataByID(ctx, item.Isin)
 		if err != nil {
 			return
 		}
