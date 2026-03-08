@@ -4,7 +4,6 @@ import (
 	"backend/internal/adapter/postgres"
 	"backend/internal/domain"
 	"backend/pkg/jwt"
-	"backend/pkg/moex"
 	"backend/pkg/svc"
 	"fmt"
 	"log/slog"
@@ -27,17 +26,34 @@ func NewHandler(repo *postgres.Repository, log *slog.Logger, middlewares []echo.
 }
 
 func (h *handler) GetBonds(c *echo.Context) error {
-	const (
-		bondType = moex.Fix
-		subType  = moex.ToMaturity
-	)
+	bondType := c.QueryParam("type")
 
-	bonds, err := h.repo.GetBonds(c.Request().Context(), bondType, subType)
+	bonds, err := h.repo.GetBonds(c.Request().Context(), bondType)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, bonds)
+}
+
+func (h *handler) GetCompanies(c *echo.Context) error {
+	companies, err := h.repo.GetCompanies(c.Request().Context())
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, companies)
+}
+
+func (h *handler) GetCompany(c *echo.Context) error {
+	id := c.Param("id")
+
+	companies, err := h.repo.GetCompanyById(c.Request().Context(), id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, companies)
 }
 
 func (h *handler) GetBond(c *echo.Context) error {
@@ -120,6 +136,10 @@ func (h *handler) InitRoutes(e *echo.Echo) {
 	e.GET("/api/v1/bond", h.GetBonds, h.middlewares...)
 	e.GET("/api/v1/bond/pick", h.GetPickedBond, h.middlewares...)
 	e.GET("/api/v1/bond/:id", h.GetBond, h.middlewares...)
+
+	e.GET("/api/v1/bond/company", h.GetCompanies, h.middlewares...)
+	e.GET("/api/v1/bond/company/:id", h.GetCompany, h.middlewares...)
+	
 	e.POST("/api/v1/bond/pick/:id", h.PickBond, h.middlewares...)
 	e.DELETE("/api/v1/bond/pick/:id", h.DeletePickedBond, h.middlewares...)
 }

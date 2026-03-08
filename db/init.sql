@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS t_bond
 (
     id             UUID                     DEFAULT uuidv4() PRIMARY KEY,
     company_id     TEXT references t_company (id),
-    
+
     isin           TEXT,
     "name"         TEXT,
     "type"         VARCHAR(100),
@@ -72,9 +72,10 @@ CREATE TABLE IF NOT EXISTS t_portfolio_to_bond
     PRIMARY KEY (portfolio_id, bond_id)
 );
 
-CREATE TABLE IF NOT EXISTS t_update_status
+CREATE TABLE IF NOT EXISTS t_events
 (
     id       UUID DEFAULT uuidv7() PRIMARY KEY,
+    type     VARCHAR(100) NOT NULL,
     "status" VARCHAR(100),
     msg      TEXT,
     "start"  TIMESTAMP WITH TIME ZONE,

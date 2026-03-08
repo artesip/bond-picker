@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func (r *Repository) GetBonds(ctx context.Context, bondType, subType string) ([]domain.Bond, error) {
+func (r *Repository) GetBonds(ctx context.Context, bondType string) ([]domain.Bond, error) {
 	const query = `
 		SELECT 
 		    b.id,
@@ -34,10 +34,10 @@ func (r *Repository) GetBonds(ctx context.Context, bondType, subType string) ([]
 		    b.company_id,
 		    b.mat_date
 		FROM t_bond b
-		WHERE b.type = @type AND b.sub_type = @subType
+		WHERE b.type = @type OR @type = ''
 	`
 
-	rows, err := r.client.Pool.Query(ctx, query, pgx.NamedArgs{"type": bondType, "subType": subType})
+	rows, err := r.client.Pool.Query(ctx, query, pgx.NamedArgs{"type": bondType})
 	if err != nil {
 		return nil, fmt.Errorf("query exec error: %w", err)
 	}
