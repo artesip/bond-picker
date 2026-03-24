@@ -10,6 +10,7 @@ import (
 
 type cron struct {
 	scheduler gocron.Scheduler
+	cancel    context.CancelFunc
 }
 
 func NewCronService(cronStr string, u *UseCase) (svc.Service, error) {
@@ -18,6 +19,8 @@ func NewCronService(cronStr string, u *UseCase) (svc.Service, error) {
 		return nil, fmt.Errorf("cron scheduler creation error: %w", err)
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	_, err = s.NewJob(
 		gocron.CronJob(
 			cronStr,
@@ -25,11 +28,11 @@ func NewCronService(cronStr string, u *UseCase) (svc.Service, error) {
 		),
 		gocron.NewTask(
 			u.UpdateBondsWithoutStartTime,
-			context.Background(),
+			ctx,
 		),
 	)
 
-	return &cron{scheduler: s}, nil
+	return &cron{scheduler: s, cancel: cancel}, nil
 }
 
 func (c *cron) Name() string {
@@ -47,8 +50,11 @@ func (c *cron) Start(_ context.Context) error {
 }
 
 func (c *cron) Stop(_ context.Context) error {
-	err := c.scheduler.Shutdown()
+	if c.cancel != nil {
+		c.cancel()
+	}
 
+	err := c.scheduler.Shutdown()
 	if err != nil {
 		return fmt.Errorf("shutdown cron service error: %w", err)
 	}

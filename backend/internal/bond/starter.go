@@ -4,7 +4,6 @@ import (
 	"backend/internal/adapter/postgres"
 	"backend/pkg/svc"
 	"context"
-	"fmt"
 	"log/slog"
 	"time"
 )
@@ -23,24 +22,29 @@ func (b *bondStarter) Name() string {
 	return "bond-starter"
 }
 
-func (b *bondStarter) Start(ctx context.Context) (err error) {
-	b.logger.Info("bond-starter service starting...")
-	start := time.Now()
+func (b *bondStarter) Start(_ context.Context) (err error) {
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		defer cancel()
 
-	hasData, err := b.repo.HasAnyBondData(ctx)
-	if err != nil {
-		return fmt.Errorf("bond-starter start error: %w", err)
-	}
+		b.logger.Info("bond-starter service starting...")
+		start := time.Now()
 
-	if hasData {
-		b.logger.Info("already have data skipping bonds filling")
-		return nil
-	}
+		hasData, err := b.repo.HasAnyBondData(ctx)
+		if err != nil {
+			b.logger.Error("bond-starter start error", "error", err)
+		}
 
-	err = b.useCase.UpdateBonds(ctx, start)
-	if err != nil {
-		return fmt.Errorf("bond-starter start error: %w", err)
-	}
+		if hasData {
+			b.logger.Info("already have data skipping bonds filling")
+			return
+		}
+
+		err = b.useCase.UpdateBonds(ctx, start)
+		if err != nil {
+			b.logger.Error("bond-starter start error", "error", err)
+		}
+	}()
 
 	return nil
 }

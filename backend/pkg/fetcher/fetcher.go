@@ -6,27 +6,46 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"time"
+
+	"github.com/samber/lo/it"
 )
 
-var client = &http.Client{
-	Timeout: 20 * time.Second,
-	Transport: &http.Transport{
-		MaxIdleConns:          100,
-		MaxIdleConnsPerHost:   50,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
-	},
+func NewClient() *http.Client {
+	jar, _ := cookiejar.New(nil)
+
+	return &http.Client{
+		Timeout: 30 * time.Second,
+		Jar:     jar,
+		Transport: &http.Transport{
+			IdleConnTimeout:       90 * time.Second,
+			TLSHandshakeTimeout:   30 * time.Second,
+			ExpectContinueTimeout: 2 * time.Second,
+			ResponseHeaderTimeout: 30 * time.Second,
+		},
+	}
 }
 
-func Do[T any](ctx context.Context, method Method, url string, body io.Reader) (*T, error) {
+var client = NewClient()
+
+func Do[T any](ctx context.Context, method Method, url string, body io.Reader, headers map[string]string) (*T, error) {
+	return DoWithClient[T](ctx, method, url, body, headers, client)
+}
+
+func DoWithClient[T any](ctx context.Context, method Method, url string, body io.Reader, headers map[string]string, client2 *http.Client) (*T, error) {
 	req, err := http.NewRequestWithContext(ctx, string(method), url, body)
 	if err != nil {
 		return nil, fmt.Errorf("error creating http request: %w", err)
 	}
 
-	resp, err := client.Do(req)
+	entries := it.Entries(headers)
+
+	for k, v := range entries {
+		req.Header.Set(k, v)
+	}
+
+	resp, err := client2.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("error executing http request: %w", err)
 	}

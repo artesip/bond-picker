@@ -106,6 +106,10 @@ func GetBonds(ctx context.Context) ([]*domain.Bond, []*domain.Company, error) {
 		item.CompanyID = company.ID
 	})
 
+	companies = lo.UniqBy(companies, func(item *domain.Company) string {
+		return item.ID
+	})
+
 	return bonds, companies, nil
 }
 

@@ -12,7 +12,7 @@ const (
 )
 
 func getApiBonds(ctx context.Context) (*BondResponse, error) {
-	data, err := fetcher.Do[BondResponse](ctx, fetcher.Get, bondUrl, nil)
+	data, err := fetcher.Do[BondResponse](ctx, fetcher.Get, bondUrl, nil, nil)
 	if err != nil {
 		return nil, fmt.Errorf("moex bonds request error: %w", err)
 	}
@@ -21,7 +21,7 @@ func getApiBonds(ctx context.Context) (*BondResponse, error) {
 }
 
 func getCompanyDataByID(ctx context.Context, bondID string) (*CompanyResponse, error) {
-	data, err := fetcher.Do[CompanyResponse](ctx, fetcher.Get, companyUrl+bondID, nil)
+	data, err := fetcher.Do[CompanyResponse](ctx, fetcher.Get, companyUrl+bondID, nil, nil)
 	if err != nil {
 		return nil, fmt.Errorf("moex company request error: %w", err)
 	}

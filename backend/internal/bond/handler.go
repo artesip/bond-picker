@@ -85,6 +85,15 @@ func (h *handler) GetPickedBond(c *echo.Context) error {
 	return c.JSON(http.StatusOK, bond)
 }
 
+func (h *handler) GetRatings(c *echo.Context) error {
+	ratings, err := h.repo.GetAllRatings(c.Request().Context())
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, ratings)
+}
+
 func (h *handler) PickBond(c *echo.Context) error {
 	id := c.Param("id")
 
@@ -139,7 +148,9 @@ func (h *handler) InitRoutes(e *echo.Echo) {
 
 	e.GET("/api/v1/bond/company", h.GetCompanies, h.middlewares...)
 	e.GET("/api/v1/bond/company/:id", h.GetCompany, h.middlewares...)
-	
+
+	e.GET("/api/v1/bond/rating", h.GetRatings, h.middlewares...)
+
 	e.POST("/api/v1/bond/pick/:id", h.PickBond, h.middlewares...)
 	e.DELETE("/api/v1/bond/pick/:id", h.DeletePickedBond, h.middlewares...)
 }

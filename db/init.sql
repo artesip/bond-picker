@@ -81,3 +81,18 @@ CREATE TABLE IF NOT EXISTS t_events
     "start"  TIMESTAMP WITH TIME ZONE,
     "end"    TIMESTAMP WITH TIME ZONE
 );
+
+CREATE TABLE IF NOT EXISTS t_rating_change
+(
+    id          UUID                     DEFAULT uuidv7() PRIMARY KEY,
+    company_id  TEXT references t_company (id),
+    agency_name TEXT        NOT NULL,
+    rating      VARCHAR(50) NOT NULL,
+    object_name TEXT        NOT NULL,
+    url         TEXT,
+    date        DATE        NOT NULL,
+
+    CONSTRAINT unique_rating_change UNIQUE (company_id, agency_name, date, object_name)
+);
+
+CREATE INDEX company_id_indx ON t_rating_change (company_id);
