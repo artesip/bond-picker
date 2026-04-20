@@ -4,10 +4,10 @@ type UUID string
 type HashedPassword string
 
 type User struct {
-	ID       UUID
+	ID       UUID           `json:"id"`
 	Username string         `json:"username"`
 	Password HashedPassword `json:"password"`
-	Salt     string
+	Salt     string         `json:"salt"`
 }
 
 func NewUser(username, password string) (*User, error) {
@@ -21,6 +21,17 @@ func NewUser(username, password string) (*User, error) {
 	}
 
 	return user, nil
+}
+
+func ClearSensitive(user *User) *User {
+	if user == nil {
+		return nil
+	}
+
+	return &User{
+		ID:       user.ID,
+		Username: user.Username,
+	}
 }
 
 func (user *User) Validate() error {

@@ -4,6 +4,7 @@ import (
 	"backend/pkg/config"
 	"backend/pkg/svc"
 	"context"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -21,6 +22,15 @@ type server struct {
 func NewServer(handlers []svc.Handler, config config.ServerConfig) svc.Server {
 	e := echo.New()
 	e.Use(middleware.RequestLogger())
+	e.Use(middleware.Recover())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{
+			"http://localhost",
+			"http://localhost:3000",
+			"http://127.0.0.1",
+		},
+		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
+	}))
 
 	sc := echo.StartConfig{
 		Address:         ":" + strconv.Itoa(config.Port),

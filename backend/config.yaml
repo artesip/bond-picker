@@ -5,7 +5,7 @@ jwt:
   key_path: secret/private.key
 
 cron:
-  str: "*/2 * * * *"  # every minute. Try https://crontab.cronhub.io
+  str: "*/5 * * * *"  # every 5 minutes. Try https://crontab.cronhub.io
 
 database:
   url: "postgresql://root:root@localhost:5434/bond_picker?"

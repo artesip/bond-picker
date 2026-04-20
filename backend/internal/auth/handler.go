@@ -16,14 +16,15 @@ import (
 )
 
 type handler struct {
-	logger  *slog.Logger
-	repo    *postgres.Repository
-	jwtKey  crypto.PrivateKey
-	useCase *UseCase
+	logger      *slog.Logger
+	repo        *postgres.Repository
+	jwtKey      crypto.PrivateKey
+	useCase     *UseCase
+	middlewares []echo.MiddlewareFunc
 }
 
-func NewHandler(l *slog.Logger, r *postgres.Repository, jwtKey crypto.PrivateKey, u *UseCase) svc.Handler {
-	return &handler{logger: l, jwtKey: jwtKey, repo: r, useCase: u}
+func NewHandler(l *slog.Logger, r *postgres.Repository, jwtKey crypto.PrivateKey, u *UseCase, m []echo.MiddlewareFunc) svc.Handler {
+	return &handler{logger: l, jwtKey: jwtKey, repo: r, useCase: u, middlewares: m}
 }
 
 func (h *handler) Login(c *echo.Context) error {
@@ -86,8 +87,25 @@ func (h *handler) Logout(c *echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+func (h *handler) Me(c *echo.Context) error {
+	userID, ok := c.Get(jwt2.UserIDKey).(string)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "invalid userID")
+	}
+
+	user, err := h.repo.GetUserByID(c.Request().Context(), domain.UUID(userID))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "user find error")
+	}
+
+	user = domain.ClearSensitive(user)
+
+	return c.JSON(http.StatusOK, user)
+}
+
 func (h *handler) InitRoutes(e *echo.Echo) {
 	e.POST("/api/v1/auth/login", h.Login)
 	e.POST("/api/v1/auth/logout", h.Logout)
 	e.POST("/api/v1/auth/registration", h.Register)
+	e.GET("/api/v1/auth/me", h.Me, h.middlewares...)
 }

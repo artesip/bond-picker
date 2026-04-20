@@ -68,7 +68,7 @@ func coreInit() (svc.Core, error) {
 	handlers := []svc.Handler{
 		metrics.NewHandler(bondUseCase, repo, log),
 		bond.NewHandler(repo, log, middlewares),
-		auth.NewHandler(log, repo, privateKey, authUseCase),
+		auth.NewHandler(log, repo, privateKey, authUseCase, middlewares),
 	}
 
 	servers := []svc.Server{

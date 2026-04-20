@@ -4,7 +4,7 @@ import "time"
 
 type Bond struct {
 	ID        UUID   `json:"id"`
-	CompanyID string `json:"company_id"`
+	CompanyID string `json:"companyID"`
 	Isin      string `json:"isin"`
 	Name      string `json:"name"`
 	Type      string `json:"type"`
@@ -31,8 +31,8 @@ type Bond struct {
 	// Объем выпуска
 	IssueSize float64 `json:"issueSize"`
 
-	CurrencyID string `json:"currencyId"`
-	BoardID    string `json:"boardId"`
+	CurrencyID string `json:"currencyID"`
+	BoardID    string `json:"boardID"`
 }
 
 type BondWithCompany struct {

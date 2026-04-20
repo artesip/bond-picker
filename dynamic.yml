@@ -1,0 +1,32 @@
+http:
+  routers:
+    react:
+      rule: "Host(`localhost`)"
+      service: react-svc
+      entryPoints:
+        - web
+
+    backend:
+      rule: "Host(`localhost`) && PathPrefix(`/backend`)"
+      service: backend-svc
+      entryPoints:
+        - web
+      middlewares:
+        - strip-backend
+
+  services:
+    react-svc:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:3000"
+
+    backend-svc:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8080"
+
+  middlewares:
+    strip-backend:
+      stripPrefix:
+        prefixes:
+          - "/backend"
