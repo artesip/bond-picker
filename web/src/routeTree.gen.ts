@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegistrationRouteImport } from './routes/registration'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppPickerRouteImport } from './routes/app/picker'
 import { Route as AppChosenRouteImport } from './routes/app/chosen'
 
@@ -30,6 +31,11 @@ const AppRoute = AppRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPickerRoute = AppPickerRouteImport.update({
   id: '/picker',
   path: '/picker',
@@ -47,13 +53,14 @@ export interface FileRoutesByFullPath {
   '/registration': typeof RegistrationRoute
   '/app/chosen': typeof AppChosenRoute
   '/app/picker': typeof AppPickerRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
-  '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/registration': typeof RegistrationRoute
   '/app/chosen': typeof AppChosenRoute
   '/app/picker': typeof AppPickerRoute
+  '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,12 +69,19 @@ export interface FileRoutesById {
   '/registration': typeof RegistrationRoute
   '/app/chosen': typeof AppChosenRoute
   '/app/picker': typeof AppPickerRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/app' | '/login' | '/registration' | '/app/chosen' | '/app/picker'
+  fullPaths:
+    | '/app'
+    | '/login'
+    | '/registration'
+    | '/app/chosen'
+    | '/app/picker'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/app' | '/login' | '/registration' | '/app/chosen' | '/app/picker'
+  to: '/login' | '/registration' | '/app/chosen' | '/app/picker' | '/app'
   id:
     | '__root__'
     | '/app'
@@ -75,6 +89,7 @@ export interface FileRouteTypes {
     | '/registration'
     | '/app/chosen'
     | '/app/picker'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -106,6 +121,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/picker': {
       id: '/app/picker'
       path: '/picker'
@@ -126,11 +148,13 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppChosenRoute: typeof AppChosenRoute
   AppPickerRoute: typeof AppPickerRoute
+  AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppChosenRoute: AppChosenRoute,
   AppPickerRoute: AppPickerRoute,
+  AppIndexRoute: AppIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

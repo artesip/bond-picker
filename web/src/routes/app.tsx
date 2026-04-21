@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useLocation } from '@tanstack/react-router';
+import { createFileRoute, Link, Outlet, redirect, useLocation } from '@tanstack/react-router';
 import { Star, InfoIcon, MousePointerClick } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -10,9 +10,9 @@ import { Separator } from '#/components/ui/separator';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink } from '#/components/ui/breadcrumb';
 import { Alert, AlertDescription } from '#/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipTrigger } from '#/components/ui/tooltip';
+
 export const Route = createFileRoute('/app')({
   component: AppLayout,
-  
 });
 
 const buttons = [
@@ -52,7 +52,6 @@ function AppLayout() {
                       <Link
                         to={ item.url }
                         activeProps={ { className: 'bg-sidebar-accent text-sidebar-accent-foreground' } }
-                        // activeOptions={ { exact: true } }
                       >
                         {item.icon}
                         {item.title}
@@ -85,16 +84,18 @@ function AppLayout() {
           </div>
 
 
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className='block text-[16px]'>
-                <BreadcrumbLink href={ currentBreadLink.url }>{currentBreadLink.title}</BreadcrumbLink>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+          {
+            currentBreadLink && <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className='block text-[16px]'>
+                  <BreadcrumbLink href={ currentBreadLink.url }>{currentBreadLink.title}</BreadcrumbLink>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          }
         
           {
-            currentBreadLink.url === '/app/picker'
+            currentBreadLink && currentBreadLink.url === '/app/picker'
               && <div className='ml-auto'>
                 <Tooltip>
                   <TooltipTrigger asChild>

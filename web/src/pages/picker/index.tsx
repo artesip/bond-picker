@@ -1,11 +1,12 @@
 import { useSearch } from '@tanstack/react-router';
 
 import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card';
-import { useBondWithRatings } from '#/entities/bonds/hooks';
+import { useBondWithRatings, usePickedBonds } from '#/entities/bonds/hooks';
 import { inRange  } from '#/entities/bonds/model';
 import { useFilterForm } from '#/entities/bonds/shemas';
 import { Badge } from '#/components/ui/badge';
 import { CopyButton } from '#/components/copy-button';
+import { AddChosenForm } from '#/components/add-chosen-form';
 
 import { BondChart } from './ui/chart';
 import { FilterBlock } from './ui/filters';
@@ -107,7 +108,8 @@ export const BondCard = ({ bond }: BondCardProps) => {
 
 export function PickerPage() {
   const { rhf } = useFilterForm();
-  const { data, isLoading } = useBondWithRatings();
+  const { data, isLoading: bondsLoading } = useBondWithRatings();
+  const { data: pickedBonds, isLoading: pickedBondsLoading, refetch } = usePickedBonds();
 
   const filters = rhf.watch();
   const { id } = useSearch({ from: '/app/picker' });
@@ -119,24 +121,26 @@ export function PickerPage() {
     .filter(bond => !filters.offerEnabled || filters.offer === 'all' || (filters.offer === 'no' && (bond.callOption === null && bond.putOption === null)) 
                       || (filters.offer === 'put' && (bond.putOption !== null)) || (filters.offer === 'call' && (bond.callOption !== null)))
     .filter(bond => !filters.ratingEnabled || (inRange(filters.ratingFrom, filters.ratingTo, bond.ratings?.[0]?.ratingValue ?? '')));
-  
-  data.filter((bond, i) => {
-    if (bond.name === 'Самолет2P3') {
-      console.log(i);
-    }
-  });
+
+  const isLoading = bondsLoading || pickedBondsLoading;
 
   return (
     <div className='flex h-full flex-row gap-4'>
       <Card className='flex flex-1 w-9/12 p-0'>
-        <BondChart isLoading={ isLoading } data={ filtered }/>
+        <BondChart isLoading={ isLoading } data={ filtered } picked={ pickedBonds || [] }/>
       </Card>
 
       <div className='w-3/12'>
         <FilterBlock rhf={ rhf }/>
         <span className='text-muted-foreground text-[14px]' >Облигаций {filtered.length}. Всего {data.length}</span>
 
-        {!isLoading && id && data && <BondCard bond={ data.filter(bond => bond.id === id)[0] }/>   }     
+        {
+          !isLoading && id && data 
+            && <div className='flex flex-col gap-2'>
+              <BondCard bond={ data.filter(bond => bond.id === id)[0] }/> 
+              <AddChosenForm bond={ data.filter(bond => bond.id === id)[0] } refetch={ refetch }/>
+            </div>
+        } 
       </div>
     </div>
   );

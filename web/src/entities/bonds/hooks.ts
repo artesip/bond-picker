@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { GetBonds, GetRatings } from './api';
+import { GetBonds, GetPicked, GetRatings } from './api';
 
 import type { Rating } from './model';
 
@@ -9,6 +9,15 @@ export function useBonds() {
   return useQuery({
     queryKey       : ['bonds'],
     queryFn        : GetBonds,
+    staleTime      : 1000 * 60,
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function usePickedBonds() {
+  return useQuery({
+    queryKey       : ['picked-bonds'],
+    queryFn        : GetPicked,
     staleTime      : 1000 * 60,
     placeholderData: keepPreviousData,
   });
