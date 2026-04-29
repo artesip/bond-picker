@@ -38,10 +38,10 @@ export function AddChosenForm({ bond, refetch }: AddChosenFormProps) {
   const number = rhf.watch('number');
 
   return (
-    <form onSubmit={ (e) => {
-      onSubmit(e);
+    <form onSubmit={ async (e) => {
+      await onSubmit(e);
       setIsSubmiting(false);
-      setTimeout(() => refetch(), 1000);
+      refetch();
     } }
     >
       {!isSubmiting && <Button onClick={ onFavoriteClick } className='w-full' variant={ 'secondary' }>В избранное</Button>}

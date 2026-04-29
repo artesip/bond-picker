@@ -47,7 +47,7 @@ export function useFilterForm() {
       durationFrom: 0,
       durationTo  : 8,
 
-      currency: '',
+      currency: 'SUR',
       offer   : 'all',
     }
   });

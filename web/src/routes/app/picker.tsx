@@ -12,7 +12,7 @@ export const Route = createFileRoute('/app/picker')({
 
 function RouteComponent() {
   return (
-    <div className='h-full flex flex-col'>
+    <div className='h-full w-full flex flex-col'>
       <PickerPage />
     </div>
   );

@@ -8,6 +8,7 @@ import { useMemo, useRef } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
 import { Skeleton } from '#/components/ui/skeleton';
+import { useIsMobile } from '#/hooks/use-mobile';
 
 import type { AgChartOptions, AgChartTheme, AgChartInstance } from 'ag-charts-community';
 import type { Bond, BondWithRatings } from '#/entities/bonds/model';
@@ -42,6 +43,7 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
   const chartRef = useRef<AgChartInstance>(null);
 
   const pickedMap = useMemo(() => new Map(picked.map(bond => [bond.id, bond])), [picked]);
+  const isMobile = useIsMobile();
    
   const options: AgChartOptions = useMemo(() => ({
     theme    : getTheme(theme),
@@ -155,13 +157,13 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
       x: {
         type : 'number',
         title: {
-          text: 'Дюрация',
+          text: isMobile ? '' : 'Дюрация',
         },
       },
       y: {
         type : 'number',
         title: {
-          text: 'YTM',
+          text: isMobile ? '' : 'YTM',
         },
         label: {
           formatter: (params) => {
@@ -170,7 +172,7 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
         },
       },
     },
-  }), [theme, data, navigate, pickedMap]);
+  }), [theme, data, isMobile, pickedMap, navigate]);
 
   return (
     <>

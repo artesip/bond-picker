@@ -1,5 +1,3 @@
-import { boolean } from 'zod';
-
 export type Bond = {
     id: string
     companyID: string

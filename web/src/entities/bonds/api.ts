@@ -29,7 +29,7 @@ export async function GetBonds(): Promise<Bond[]> {
     faceValue    : truncateDecimals(element.faceValue, 2),
     couponPercent: truncateDecimals(element.couponPercent, 2),
     acruedint    : truncateDecimals(element.acruedint, 2),
-    duration     : element.duration / 365,
+    duration     : truncateDecimals(element.duration / 365, 2),
 
     nextCoupon: new Date(element.nextCoupon),
     matDate   : new Date(element.matDate),
@@ -95,7 +95,7 @@ export async function GetPicked() {
     faceValue    : truncateDecimals(element.faceValue, 2),
     couponPercent: truncateDecimals(element.couponPercent, 2),
     acruedint    : truncateDecimals(element.acruedint, 2),
-    duration     : element.duration / 365,
+    duration     : truncateDecimals(element.duration / 365, 2),
 
     nextCoupon: new Date(element.nextCoupon),
     matDate   : new Date(element.matDate),
@@ -106,3 +106,17 @@ export async function GetPicked() {
 
   return result;
 }
+
+export async function DeletePicked(id: string) {
+  const resp = await fetch(`/backend/api/v1/bond/pick/${id}`,
+    {
+      method : 'DELETE',
+      headers: headers,
+    }
+  );
+
+  if (!resp.ok) {
+    throw Error('Ошибка удаления избранной облигации');
+  }
+}
+

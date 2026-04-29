@@ -1,9 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/app/chosen')({ component: App });
+import { ChosenPage } from '#/pages/chosen';
 
-function App() {
+export const Route = createFileRoute('/app/chosen')({ component: Page });
+
+function Page() {
   return (
-    <div>123</div>
+    <ChosenPage/>
   );
 }

@@ -95,7 +95,7 @@ export function NavUser({
 
       <DialogContent showCloseButton={ false }>
         <DialogHeader>
-          <DialogTitle>Выход из аккаунта</DialogTitle>
+          <DialogTitle className='text-[18px]'>Выход из аккаунта</DialogTitle>
           <DialogDescription>
             Вы уверены, что хотите выйти из аккаунта ?
           </DialogDescription>
@@ -103,7 +103,7 @@ export function NavUser({
         <DialogFooter>
           <Button variant={ 'ghost' } onClick={ onUserExit }>Да, выйти</Button>
           <DialogClose asChild>
-            <Button variant='destructive'>Нет</Button>
+            <Button variant={ 'ghost' }>Нет</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

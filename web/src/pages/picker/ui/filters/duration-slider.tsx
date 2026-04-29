@@ -16,7 +16,7 @@ type DurationSliderProps = {
 export function DurationSlider({ rhf, max }: DurationSliderProps) {
   return (
     <Field>
-      <FieldLabel>Доходность</FieldLabel>
+      <FieldLabel>Дюрация</FieldLabel>
             
       <Controller
         name='durationFrom'

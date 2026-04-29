@@ -1,5 +1,5 @@
-import { createFileRoute, Link, Outlet, redirect, useLocation } from '@tanstack/react-router';
-import { Star, InfoIcon, MousePointerClick } from 'lucide-react';
+import { createFileRoute, Link, Outlet, useLocation } from '@tanstack/react-router';
+import { Star, MousePointerClick } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
 import { PortfolioSwitcher } from '#/components/portfolio-switcher';
@@ -10,6 +10,7 @@ import { Separator } from '#/components/ui/separator';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink } from '#/components/ui/breadcrumb';
 import { Alert, AlertDescription } from '#/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipTrigger } from '#/components/ui/tooltip';
+import { BondSearch } from '#/components/search';
 
 export const Route = createFileRoute('/app')({
   component: AppLayout,
@@ -65,6 +66,8 @@ function AppLayout() {
           
         </SidebarContent>
         <SidebarFooter className='items-center'>
+          <BondSearch/>
+          
           <NavUser
             user={ { username: user?.username || '', avatar: 'https://img.daisyui.com/images/profile/demo/yellingcat@192.webp' } }
           />
@@ -100,12 +103,27 @@ function AppLayout() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Alert className='p-1 lg:py-2 lg:px-3'>
-                      <InfoIcon />
                       <AlertDescription className='truncate!'>ИИ может ошибаться. Не является индивидуальной инвестиционной рекомендацией</AlertDescription>
                     </Alert>
                   </TooltipTrigger>
                   <TooltipContent className='items-center'>
                     <p>ИИ может ошибаться. Не является индивидуальной инвестиционной рекомендацией</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+          }
+
+          {
+            currentBreadLink && currentBreadLink.url === '/app/chosen'
+              && <div className='ml-auto'>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Alert className='p-1 lg:py-2 lg:px-3'>
+                      <AlertDescription className='truncate!'>14.5% ─ Ключевая ставка ЦБ РФ</AlertDescription>
+                    </Alert>
+                  </TooltipTrigger>
+                  <TooltipContent className='items-center'>
+                    <p>14.5% ─ Ключевая ставка ЦБ РФ</p>
                   </TooltipContent>
                 </Tooltip>
               </div>

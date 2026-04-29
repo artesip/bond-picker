@@ -78,7 +78,6 @@ export function FilterBlock({ rhf }: FilterBlockProps) {
         offerEnabled
          && <OfferToggle rhf={ rhf }/>
       }
-      
     </div>
 
   );
