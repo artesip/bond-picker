@@ -1,4 +1,4 @@
-import { useSearch } from '@tanstack/react-router';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
 import { AddChosenForm } from '#/components/add-chosen-form';
@@ -17,6 +17,7 @@ export function ChosenBond({ data, refetch }: ChosenBondProps) {
   const { id } = useSearch({ from: '/app/picker' });
   const isMobile = useIsMobile();
   const selectedBond = data.find(bond => bond.id === id);
+  const navigate = useNavigate({ from: '/app/picker' });
 
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -32,7 +33,15 @@ export function ChosenBond({ data, refetch }: ChosenBondProps) {
 
   if (isMobile) {
     return (
-      <Drawer open={ open } onOpenChange={ setOpen }>
+      <Drawer open={ open } onOpenChange={ (e) => {
+        setOpen(e);
+        navigate({
+          search: (prev) => {
+            const { id, ...rest } = prev;
+            return rest;
+          },
+        }); 
+      } }>
         <DrawerContent className='gap-4 mb-4 px-2'>
           <BondCard bond={ selectedBond } className='bg-transparent! border-0! ring-0 shadow-none mt-0'/> 
           <AddChosenForm bond={ selectedBond } refetch={ refetch }/>

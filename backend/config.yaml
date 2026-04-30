@@ -8,4 +8,4 @@ cron:
   str: "*/5 * * * *"  # every 5 minutes. Try https://crontab.cronhub.io
 
 database:
-  url: "postgresql://root:root@localhost:5434/bond_picker?"
+  url: "postgresql://root:root@database:5432/bond_picker?"

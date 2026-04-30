@@ -1,4 +1,5 @@
 import { SquareArrowOutUpRight, Trash2 } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
 
 import { DeletePicked } from '#/entities/bonds/api';
 
@@ -63,9 +64,26 @@ export function DeleteIcon(props: ICellRendererParams) {
 }
 
 export function RatingIcon(props: ICellRendererParams) {
+  const navigate = useNavigate({ from: '/app/chosen' });
+
+  function onLinkClick() {
+    const id = props.data.id;
+
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        id: String(id),
+      }),
+      replace: false,
+    });
+  }
+
   return (
-    <div className='flex shrink-0 items-center cursor-pointer justify-center mt-2 text-gray-300 opacity-30 hover:opacity-100'>
+    <button
+      className='flex shrink-0 items-center cursor-pointer justify-center mt-2 text-gray-300 opacity-30 hover:opacity-100'
+      onClick={ onLinkClick }
+    >
       <SquareArrowOutUpRight />
-    </div>
+    </button>
   );
 }

@@ -17,7 +17,7 @@ USER nobody
 WORKDIR /app
 
 COPY --from=build /app/config.yaml .
-COPY --from=build /app/secret .
+COPY --from=build /app/secret ./secret/
 
 COPY --from=build /app/backend ./backend
 
