@@ -7,6 +7,7 @@ import { useFavoriteAddForm } from '#/entities/bonds/shemas';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Field, FieldError } from './ui/field';
+import { Spinner } from './ui/spinner';
 
 import type { Bond } from '#/entities/bonds/model';
 
@@ -17,6 +18,7 @@ type AddChosenFormProps = {
 
 export function AddChosenForm({ bond, refetch }: AddChosenFormProps) {
   const [isSubmiting, setIsSubmiting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { rhf, onSubmit } = useFavoriteAddForm(bond.id);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -29,7 +31,7 @@ export function AddChosenForm({ bond, refetch }: AddChosenFormProps) {
   }
 
   function startCloserTime() {
-    timeoutRef.current = setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {      
       setIsSubmiting(false);
       timeoutRef.current = null;
     }, 5000);
@@ -39,9 +41,16 @@ export function AddChosenForm({ bond, refetch }: AddChosenFormProps) {
 
   return (
     <form onSubmit={ async (e) => {
-      await onSubmit(e);
-      setIsSubmiting(false);
-      refetch();
+      e.preventDefault();
+      setIsLoading(true);
+
+      try {
+        await onSubmit(e);
+        refetch();
+      } finally {
+        setIsLoading(false);
+        setIsSubmiting(false);
+      }
     } }
     >
       {!isSubmiting && <Button onClick={ onFavoriteClick } className='w-full' variant={ 'secondary' }>В избранное</Button>}
@@ -101,7 +110,14 @@ export function AddChosenForm({ bond, refetch }: AddChosenFormProps) {
             <Minus />
           </Button>
           
-          <Button variant={ 'secondary' } className='w-1/2' type='submit'>Добавить</Button>
+          <Button
+            variant={ 'secondary' }
+            className='w-1/2'
+            type='submit'
+            disabled={ isLoading }
+          >
+            {isLoading ? <Spinner /> : 'Добавить'}
+          </Button>
         </div>
       }
     </form>

@@ -28,7 +28,7 @@ export const BondCard = ({ bond, className }: BondCardProps) => {
           <CardTitle className='flex text-lg font-semibold gap-2 items-center'>
             {bond.name}
 
-            <Badge variant='secondary' className='text-[14px]'>{bond.ratings[0].ratingValue}</Badge>
+            {bond.ratings.length > 0 && bond.ratings[0].ratingValue && <Badge variant='secondary' className='text-[14px]'>{bond.ratings[0].ratingValue}</Badge>}
             
 
             {bond.callOption && (

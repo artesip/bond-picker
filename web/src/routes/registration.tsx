@@ -8,13 +8,14 @@ export const Route = createFileRoute('/registration')({
 });
 
 function RouteComponent() {
-  const { rhf, onSubmit } = useRegistrationForm();
+  const { rhf, onSubmit, isSubmiting } = useRegistrationForm();
 
   return (
     <div className='flex h-screen w-full items-center justify-center'>
       <RegistrationForm 
         className='w-100'
         rhf={ rhf }
+        isSubmiting={ isSubmiting }
         onSubmit={ (e) => {
           e.preventDefault();
           onSubmit(e);

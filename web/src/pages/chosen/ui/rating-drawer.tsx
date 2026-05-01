@@ -44,7 +44,7 @@ export function RatingDrawer({ bonds }: RatingDrawerProps) {
           История рейтингов
         </DrawerHeader>
 
-        <ul className='flex flex-col gap-2 p-2'>
+        <ul className='flex flex-col gap-2 p-2 overflow-auto'>
           {bondRatings.map(rating => 
             <RatingItem rating={ rating } key={ rating.id }/>
           )}

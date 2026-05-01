@@ -8,13 +8,14 @@ export const Route = createFileRoute('/login')({
 });
 
 function RouteComponent() {
-  const { rhf, onSubmit } = useLoginForm();
+  const { rhf, onSubmit, isSubmiting } = useLoginForm();
 
   return (
     <div className='flex h-screen w-full items-center justify-center'>
       <LoginForm 
         className='w-100'
         rhf={ rhf }
+        isSubmiting={ isSubmiting }
         onSubmit={ (e) => {
           e.preventDefault();
           onSubmit(e);

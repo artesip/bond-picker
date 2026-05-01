@@ -24,7 +24,7 @@ export function DeleteIcon(props: ICellRendererParams) {
         remove: selectedNodes.map(n => n.data)
       });
 
-      await Promise.all(
+      Promise.all(
         selectedNodes.map(el => {
           const bond = el.data as Bond;
           return DeletePicked(bond.id);
@@ -68,6 +68,7 @@ export function RatingIcon(props: ICellRendererParams) {
 
   function onLinkClick() {
     const id = props.data.id;
+    console.log(props.data);
 
     navigate({
       search: (prev) => ({

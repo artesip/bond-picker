@@ -46,8 +46,13 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
   const isMobile = useIsMobile();
    
   const options: AgChartOptions = useMemo(() => ({
-    theme    : getTheme(theme),
-    padding  : 1,
+    theme  : getTheme(theme),
+    padding: {
+      top   : isMobile ? 20 : 20,
+      left  : isMobile ? 0 : 20,
+      right : isMobile ? 5 : 20,
+      bottom: isMobile ? 10 : 20,
+    },
     animation: { enabled: false },
     series   : [
       {
@@ -60,6 +65,7 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
         yKey          : 'ytm',
         yName         : 'Доходность(YTM)',
         tooltip       : {
+          enabled : !isMobile,
           renderer: (params) => {
             const { datum } = params;
             
@@ -78,7 +84,9 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
                 ...prev,
                 id: String(id),
               }),
-              replace: false,
+              replace       : false,
+              resetScroll   : false,
+              viewTransition: true,
             });
           }
         },
@@ -93,6 +101,7 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
         yKey          : 'ytm',
         yName         : 'Доходность(YTM)',
         tooltip       : {
+          enabled : !isMobile,
           renderer: (params) => {
             const { datum } = params;
             
@@ -111,7 +120,9 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
                 ...prev,
                 id: String(id),
               }),
-              replace: false,
+              replace       : false,
+              resetScroll   : false,
+              viewTransition: true,
             });
           }
         },
@@ -126,6 +137,7 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
         yKey          : 'ytm',
         yName         : 'Доходность(YTM)',
         tooltip       : {
+          enabled : !isMobile,
           renderer: (params) => {
             const { datum } = params;
             
@@ -144,7 +156,9 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
                 ...prev,
                 id: String(id),
               }),
-              replace: false,
+              replace       : false,
+              resetScroll   : false,
+              viewTransition: true,
             });
           }
         },

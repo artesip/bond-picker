@@ -18,16 +18,20 @@ import {
 } from '#/components/ui/field';
 import { Input } from '#/components/ui/input';
 
+import { Spinner } from './ui/spinner';
+
 import type { UseFormReturn } from 'react-hook-form';
 import type { LoginInput } from '#/entities/auth/schema';
 
 type LoginFormProps = React.ComponentProps<'div'> & {
   rhf: UseFormReturn<LoginInput>
+  isSubmiting: boolean
 }
 
 export function LoginForm({
   className,
   rhf,
+  isSubmiting,
   ...props
 }: LoginFormProps) {
   
@@ -79,7 +83,11 @@ export function LoginForm({
               />
               
               <Field>
-                <Button type='submit'>Вход</Button>
+                <Button type='submit' disabled={ isSubmiting }>
+                  {!isSubmiting && 'Вход'}
+                  {isSubmiting && <Spinner className='size-4'/>}
+                </Button>
+
                 <FieldDescription className='text-center'>
                   Нет аккаунта? <a href='registration'>Зарегестрироваться</a>
                 </FieldDescription>

@@ -40,6 +40,8 @@ export function ChosenBond({ data, refetch }: ChosenBondProps) {
             const { id, ...rest } = prev;
             return rest;
           },
+          resetScroll   : false,
+          viewTransition: true,
         }); 
       } }>
         <DrawerContent className='gap-4 mb-4 px-2'>

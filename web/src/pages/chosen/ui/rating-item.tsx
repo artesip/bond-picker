@@ -17,7 +17,7 @@ export function RatingItem({ rating }: RatingItemProps) {
           {rating.agencyName}
         </span>
 
-        <span className='text-xs text-muted-foreground'>
+        <span className='text-xs text-muted-foreground lg:max-w-60 max-w-40'>
           {rating.objectName}
         </span>
       </div>

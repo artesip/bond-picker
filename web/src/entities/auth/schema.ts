@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
+import { useState } from 'react';
 
 import { Login, Registration } from '#/entities/auth/api';
 
@@ -14,6 +15,8 @@ const LoginSchema = z.object({
 export type LoginInput = z.infer<typeof LoginSchema>;
 
 export function useLoginForm() {
+  const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
+
   const rhf = useForm<LoginInput>({
     resolver     : zodResolver(LoginSchema),
     defaultValues: {
@@ -25,20 +28,28 @@ export function useLoginForm() {
   const router = useNavigate();
 
   const onSubmit = rhf.handleSubmit(async (data) => {
+    if (isSubmiting) {
+      return;
+    }
+
+    setIsSubmiting(true);
+
     try {
       await Login(data);
-
       router({ to: '/app/chosen' });
     } catch (e) {
       if (e instanceof Error) {
         toast.error(e.message);
       }
+    } finally {
+      setIsSubmiting(false);
     }
   });
 
   return {
     rhf,
     onSubmit,
+    isSubmiting,
   }; 
 }
 
@@ -53,6 +64,7 @@ const RegistrationSchema = z.object({
 export type RegistrationInput = z.infer<typeof RegistrationSchema>;
 
 export function useRegistrationForm() {
+  const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
   const rhf = useForm<RegistrationInput>({
     resolver     : zodResolver(RegistrationSchema),
     defaultValues: {
@@ -64,6 +76,12 @@ export function useRegistrationForm() {
   const router = useNavigate();
 
   const onSubmit = rhf.handleSubmit(async (data) => {
+    if (isSubmiting) {
+      return;
+    }
+
+    setIsSubmiting(true);
+
     try {
       await Registration(data);
 
@@ -72,11 +90,14 @@ export function useRegistrationForm() {
       if (e instanceof Error) {
         toast.error(e.message);
       }
+    } finally {
+      setIsSubmiting(false);
     }
   });
 
   return {
     rhf,
     onSubmit,
+    isSubmiting,
   }; 
 }
