@@ -5,6 +5,15 @@ http:
       service: react-svc
       entryPoints:
         - web
+      middlewares:
+#        - redirect-https
+
+#    react-https:
+#      rule: "Host(`localhost`)"
+#      service: react-svc
+#      entryPoints:
+#        - websecure
+#      tls: {}
 
     backend:
       rule: "Host(`localhost`) && PathPrefix(`/backend`)"
@@ -13,6 +22,17 @@ http:
         - web
       middlewares:
         - strip-backend
+
+  middlewares:
+#    redirect-https:
+#      redirectScheme:
+#        scheme: https
+#        permanent: true
+
+    strip-backend:
+      stripPrefix:
+        prefixes:
+          - "/backend"
 
   services:
     react-svc:
@@ -25,8 +45,7 @@ http:
         servers:
           - url: "http://host.docker.internal:8080"
 
-  middlewares:
-    strip-backend:
-      stripPrefix:
-        prefixes:
-          - "/backend"
+#tls:
+#  certificates:
+#    - certFile: /etc/letsencrypt/live/artemii.su/fullchain.pem
+#      keyFile: /etc/letsencrypt/live/artemii.su/privkey.pem
