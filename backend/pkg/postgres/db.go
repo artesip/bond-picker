@@ -24,10 +24,15 @@ func NewService(config config.DatabaseConfig) (*Client, error) {
 
 func (s *Client) Init(ctx context.Context) error {
 	pool, err := pgxpool.NewWithConfig(ctx, s.cfg)
-	if err != nil {
+	if err != nil || pool == nil {
 		return fmt.Errorf("error initializing database pool: %w", err)
 	}
 	s.Pool = pool
+
+	if err = pool.Ping(ctx); err != nil {
+		return fmt.Errorf("db ping error: %w", err)
+	}
+
 	return nil
 }
 
