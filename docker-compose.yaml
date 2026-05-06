@@ -26,24 +26,6 @@ services:
       - network
     restart: always
 
-  traefik:
-    image: traefik:v3.6
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--entrypoints.web.address=:80"
-     #- "--entrypoints.websecure.address=:443"
-      - "--providers.file.filename=/etc/traefik/dynamic.yml"
-    ports:
-      - "80:80"
-     #- "443:443"
-      - "127.0.0.1:8000:8080"
-    volumes:
-      - ./dynamic.yml:/etc/traefik/dynamic.yml:ro
-     #- /etc/letsencrypt:/etc/letsencrypt:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-    restart: always
-
   database:
     image: postgres:18.2
     container_name: bond-picker-database
