@@ -1,5 +1,7 @@
 package domain
 
+import "strings"
+
 type UUID string
 type HashedPassword string
 
@@ -35,5 +37,19 @@ func ClearSensitive(user *User) *User {
 }
 
 func (user *User) Validate() error {
+	if user == nil {
+		return ValidationErr
+	}
+	trimedUsername := strings.Trim(user.Username, " ")
+	trimedPassword := strings.Trim(string(user.Password), " ")
+
+	if len(trimedUsername) < 4 {
+		return ValidationErr
+	}
+
+	if len(trimedPassword) < 8 {
+		return ValidationErr
+	}
+
 	return nil
 }
