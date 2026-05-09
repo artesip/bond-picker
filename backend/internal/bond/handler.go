@@ -108,7 +108,7 @@ func (h *handler) PickBond(c *echo.Context) error {
 
 	countParam := c.QueryParam("count")
 	count, err := strconv.Atoi(countParam)
-	if err != nil {
+	if err != nil || count < 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("invalid count: %v", err))
 	}
 
