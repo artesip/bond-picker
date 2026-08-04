@@ -58,7 +58,7 @@ func (b *UseCase) UpdateBonds(ctx context.Context, start time.Time) (err error) 
 		return err
 	}
 
-	b.logger.Info("successfully update bond data", slog.Float64("update-seconds", time.Since(start).Seconds()))
+	b.logger.Info("successfully update bond data", slog.Float64("seconds", time.Since(start).Seconds()))
 
 	b.changeUpdateEventStatus(ctx, start, postgres.BondUpdateEvent, err)
 
@@ -98,7 +98,7 @@ func (b *UseCase) UpdateBonds(ctx context.Context, start time.Time) (err error) 
 		return err
 	}
 
-	b.logger.Info("successfully update rating data", slog.Float64("update-seconds", time.Since(start).Seconds()))
+	b.logger.Info("successfully update rating data", slog.Float64("seconds", time.Since(start).Seconds()))
 
 	b.changeUpdateEventStatus(ctx, start, postgres.RatingUpdateEvent, err)
 
