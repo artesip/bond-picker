@@ -9,6 +9,7 @@ import { useNavigate } from '@tanstack/react-router';
 
 import { Skeleton } from '#/components/ui/skeleton';
 import { useIsMobile } from '#/hooks/use-mobile';
+import { AI_ENABLED } from '#/entities/ai/hooks';
 
 import type { AgChartOptions, AgChartTheme, AgChartInstance } from 'ag-charts-community';
 import type { Bond, BondWithRatings } from '#/entities/bonds/model';
@@ -62,7 +63,7 @@ export const BondChart = ({ data, isLoading, picked, suspiciousIds, isUserLogedI
       {
         nodeClickRange: 'nearest',
         type          : 'scatter',
-        title         : 'All',
+        title         : 'Все',
         xKey          : 'duration',
         data          : data.filter(bond => !pickedMap.has(bond.id)),
         xName         : 'Дюрация',
@@ -99,6 +100,7 @@ export const BondChart = ({ data, isLoading, picked, suspiciousIds, isUserLogedI
         nodeClickRange: 'nearest',
         type          : 'scatter',
         title         : 'AI',
+        showInLegend  : AI_ENABLED,
         xKey          : 'duration',
         data          : data.filter(bond => setSuspIds.has(bond.id)),
         xName         : 'Дюрация',

@@ -2,7 +2,7 @@ import { Card } from '#/components/ui/card';
 import { useBondWithRatings, usePickedBonds } from '#/entities/bonds/hooks';
 import { inRange  } from '#/entities/bonds/model';
 import { useFilterForm } from '#/entities/bonds/shemas';
-import { useSuspicious } from '#/entities/ai/hooks';
+import { useSuspicious, AI_ENABLED } from '#/entities/ai/hooks';
 
 import { BondChart } from './ui/chart';
 import { FilterBlock } from './ui/filters';
@@ -17,7 +17,7 @@ export function PickerPage({ isUserLogedIn }: PickerPageProps) {
   const { data, isLoading: bondsLoading } = useBondWithRatings();
   const { data: pickedBonds, isLoading: pickedBondsLoading, refetch } = usePickedBonds(isUserLogedIn);
 
-  const { data: ids } = useSuspicious(data, 14.5, !bondsLoading);
+  const { data: ids } = useSuspicious(data, 14.5, !bondsLoading && AI_ENABLED);
 
   const filters = rhf.watch();
   
