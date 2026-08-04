@@ -41,7 +41,7 @@ func (r *Repository) UpsertRatings(ctx context.Context, ratings []*domain.Rating
 	_, err = tx.CopyFrom(
 		ctx,
 		pgx.Identifier{"ratings_staging"},
-		[]string{"company_id", "agency_name", "rating", "url", "date", "object_name"},
+		[]string{"company_id", "agency_name", "rating", "url", "date", "object_name", "is_revoked"},
 		pgx.CopyFromSlice(len(ratings), func(i int) ([]interface{}, error) {
 			return []interface{}{
 				&ratings[i].CompanyID,
@@ -50,6 +50,7 @@ func (r *Repository) UpsertRatings(ctx context.Context, ratings []*domain.Rating
 				&ratings[i].ReleaseUrl,
 				&ratings[i].Date,
 				&ratings[i].ObjectName,
+				&ratings[i].IsRevoked,
 			}, nil
 		}),
 	)
@@ -58,11 +59,12 @@ func (r *Repository) UpsertRatings(ctx context.Context, ratings []*domain.Rating
 	}
 
 	_, err = tx.Exec(ctx, `
-		INSERT INTO t_rating_change(company_id, agency_name, rating, url, date, object_name)
-		SELECT company_id, agency_name, rating, url, date, object_name
+		INSERT INTO t_rating_change(company_id, agency_name, rating, url, date, object_name, is_revoked)
+		SELECT company_id, agency_name, rating, url, date, object_name, is_revoked
 		FROM ratings_staging
-		ON CONFLICT (company_id, agency_name, date, object_name)
-		DO NOTHING
+		ON CONFLICT (company_id, agency_name, rating, date, object_name)
+		DO UPDATE SET 
+			is_revoked = EXCLUDED.is_revoked
 	`)
 
 	if err != nil {

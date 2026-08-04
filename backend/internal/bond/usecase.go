@@ -86,9 +86,6 @@ func (b *UseCase) UpdateBonds(ctx context.Context, start time.Time) (err error) 
 	domainRatings := lop.Map(ratings, func(item cbr.Rating, index int) *domain.Rating {
 		rating, _ := domain.NewRating(item)
 
-		if item.Inn == "" {
-			fmt.Println(item)
-		}
 		return rating
 	})
 

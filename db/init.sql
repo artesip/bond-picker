@@ -84,15 +84,16 @@ CREATE TABLE IF NOT EXISTS t_events
 
 CREATE TABLE IF NOT EXISTS t_rating_change
 (
-    id          UUID                     DEFAULT uuidv7() PRIMARY KEY,
+    id          UUID DEFAULT uuidv7() PRIMARY KEY,
     company_id  TEXT references t_company (id),
     agency_name TEXT        NOT NULL,
     rating      VARCHAR(50) NOT NULL,
     object_name TEXT        NOT NULL,
     url         TEXT,
     date        DATE        NOT NULL,
+    is_revoked  BOOLEAN     NOT NULL,
 
-    CONSTRAINT unique_rating_change UNIQUE (company_id, agency_name, date, object_name)
+    CONSTRAINT unique_rating_change UNIQUE (company_id, agency_name, rating, date, object_name)
 );
 
 CREATE INDEX company_id_indx ON t_rating_change (company_id);

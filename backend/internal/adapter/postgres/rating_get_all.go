@@ -17,8 +17,10 @@ func (r *Repository) GetAllRatings(ctx context.Context) ([]domain.Rating, error)
 			r.rating,
 			r.object_name,
 			r.url,
-			r.date
+			r.date,
+			r.is_revoked
 		FROM t_rating_change r
+		ORDER BY r.date DESC
 	`
 
 	rows, err := r.client.Pool.Query(ctx, query)

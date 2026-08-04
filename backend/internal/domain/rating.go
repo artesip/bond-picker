@@ -13,6 +13,7 @@ type Rating struct {
 	ReleaseUrl string    `json:"releaseUrl" db:"url"`
 	ObjectName string    `json:"objectName"`
 	Date       time.Time `json:"releaseDate"`
+	IsRevoked  bool      `json:"isRevoked"`
 }
 
 func NewRating(rating cbr.Rating) (*Rating, error) {
@@ -22,12 +23,20 @@ func NewRating(rating cbr.Rating) (*Rating, error) {
 		return nil, err
 	}
 
+	isRevoked := false
+	resultRating := rating.Rating
+	if rating.Rating == cbr.NoRating {
+		isRevoked = true
+		resultRating = ""
+	}
+
 	return &Rating{
 		CompanyID:  rating.Inn,
-		Rating:     rating.Rating,
+		Rating:     resultRating,
 		AgencyName: rating.AgencyName,
 		ReleaseUrl: rating.ReleaseUrl,
 		ObjectName: rating.ObjectName,
 		Date:       releaseDate,
+		IsRevoked:  isRevoked,
 	}, err
 }

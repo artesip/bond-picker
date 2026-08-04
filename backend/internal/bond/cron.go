@@ -30,6 +30,7 @@ func NewCronService(cronStr string, u *UseCase) (svc.Service, error) {
 			u.UpdateBondsWithoutStartTime,
 			ctx,
 		),
+		gocron.WithSingletonMode(gocron.LimitModeReschedule),
 	)
 
 	return &cron{scheduler: s, cancel: cancel}, nil

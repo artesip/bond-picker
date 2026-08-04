@@ -26,6 +26,13 @@ services:
       - network
     restart: always
 
+  ai:
+    build: ai
+    container_name: bond-picker-ai
+    ports:
+      - "127.0.0.1:8000:8000"
+    restart: always
+
   database:
     image: postgres:18.2
     container_name: bond-picker-database

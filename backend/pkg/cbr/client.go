@@ -2,10 +2,12 @@ package cbr
 
 import (
 	"backend/pkg/fetcher"
+	"bytes"
 	"context"
 	"fmt"
 	"regexp"
 	"strconv"
+	"time"
 
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
@@ -18,9 +20,10 @@ const (
 		"searchRatingNavigation&fields[pageSize]=25&fields[sortingField]=objectName&fields[sortingDirection]" +
 		"=ascending&fields[pageNumber]="
 	referUrl      = "https://ratings.cbr.ru/?formSearh=quick&inn="
+	keyRateUrl    = "https://www.cbr.ru/DailyInfoWebServ/DailyInfo.asmx"
 	csrfHeaderKey = "X-Bitrix-Csrf-Token"
 	referKey      = "Referer"
-	noRating      = "Рейтинг отозван"
+	NoRating      = "Рейтинг отозван"
 )
 
 func GetRatingsByCompany(ctx context.Context, inn string) ([]Rating, error) {
@@ -65,10 +68,6 @@ func GetRatingsByCompany(ctx context.Context, inn string) ([]Rating, error) {
 		return itemCopy
 	})
 
-	clearedRatings = lo.Filter(clearedRatings, func(item Rating, index int) bool {
-		return item.Rating != noRating
-	})
-
 	clearedRatings = lo.UniqBy(clearedRatings, func(item Rating) string {
 		return item.ObjectName + item.Inn + item.Date + item.AgencyName
 	})
@@ -98,7 +97,7 @@ func clearRatings(ratings []Rating) []Rating {
 	result := make([]Rating, 0, len(ratings))
 
 	for _, r := range ratings {
-		if r.Rating != noRating {
+		if r.Rating != NoRating {
 			r.Rating = re.ReplaceAllString(r.Rating, "")
 		}
 
@@ -106,4 +105,36 @@ func clearRatings(ratings []Rating) []Rating {
 	}
 
 	return result
+}
+
+func GetKeyRate(ctx context.Context) (string, error) {
+	layout := "2006-01-02T00:00:00"
+	now := time.Now()
+	todayStr := now.Format(layout)
+	fromStr := now.AddDate(0, 0, -7).Format(layout)
+
+	payload := fmt.Sprintf(`<?xml version="1.0" encoding="utf-8"?>
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+  <soap12:Body>
+    <KeyRateXML xmlns="http://web.cbr.ru/">
+      <fromDate>%s</fromDate>
+      <ToDate>%s</ToDate>
+    </KeyRateXML>
+  </soap12:Body>
+</soap12:Envelope>`, fromStr, todayStr)
+
+	headers := make(map[string]string)
+	headers["Content-Type"] = "application/soap+xml; charset=utf-8"
+
+	res, err := fetcher.DoXml[KeyRateResponse](ctx, fetcher.Post, keyRateUrl, bytes.NewBufferString(payload), headers)
+	if err != nil {
+		return "", err
+	}
+
+	rates := res.Body.KeyRateXMLResponse.Result.KeyRate.Items
+	if len(rates) == 0 {
+		return "", fmt.Errorf("ставка на дату %s не найдена", todayStr)
+	}
+
+	return rates[0].Rate, nil
 }
