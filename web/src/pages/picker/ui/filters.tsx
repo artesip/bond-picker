@@ -41,7 +41,7 @@ export function FilterBlock({ rhf }: FilterBlockProps) {
 
   const ratingValues = Array.from(
     new Set((ratings ?? []).map(el => el.ratingValue))
-  ).sort(compareRatings);
+  ).sort(compareRatings).filter(r => r !== '');
 
   const currencyValues = Array.from(
     new Set((bonds ?? []).map(el => el.currencyID))

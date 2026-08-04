@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { RegistrationForm } from '#/components/registration-form';
+import { RegistrationForm } from '#/pages/registration';
 import { useRegistrationForm } from '#/entities/auth/schema';
 
 export const Route = createFileRoute('/registration')({

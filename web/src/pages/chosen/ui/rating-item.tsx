@@ -27,9 +27,17 @@ export function RatingItem({ rating }: RatingItemProps) {
           {rating.releaseDate.toLocaleDateString()}
         </span>
 
+      { rating.ratingValue &&
         <Badge variant='secondary' className='font-semibold'>
-          {rating.ratingValue}
+            {rating.ratingValue}
         </Badge>
+      }
+
+      { rating.isRevoked &&
+          <Badge variant='destructive' className='font-semibold'>
+              Отозван
+          </Badge>
+      }
 
         <a
           href={ rating.releaseUrl }

@@ -18,7 +18,7 @@ import {
 } from '#/components/ui/field';
 import { Input } from '#/components/ui/input';
 
-import { Spinner } from './ui/spinner';
+import { Spinner } from '../../components/ui/spinner';
 
 import type { UseFormReturn } from 'react-hook-form';
 import type { RegistrationInput } from '#/entities/auth/schema';

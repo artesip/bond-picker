@@ -21,6 +21,15 @@ const formatNumber = (value: number) => {
 };
 
 export const BondCard = ({ bond, className }: BondCardProps) => {
+  let ratingValue = null;
+  let isRevoked = false;
+  for (const rating of bond.ratings) {
+    if (rating.ratingValue !== '') {
+      ratingValue = rating.ratingValue;
+      isRevoked = rating.isRevoked;
+    }
+  }
+
   return (
     <Card className={ cn('w-full max-w-xl shadow-md rounded-2xl mt-6', className) }>
       <CardHeader>
@@ -28,7 +37,8 @@ export const BondCard = ({ bond, className }: BondCardProps) => {
           <CardTitle className='flex text-lg font-semibold gap-2 items-center'>
             {bond.name}
 
-            {bond.ratings.length > 0 && bond.ratings[0].ratingValue && <Badge variant='secondary' className='text-[14px]'>{bond.ratings[0].ratingValue}</Badge>}
+            {ratingValue && <Badge variant='secondary' className='text-[14px]'>{ratingValue}</Badge>}
+            {isRevoked && <Badge variant='destructive' className='text-[14px]'>Отозван</Badge>}
             
 
             {bond.callOption && (

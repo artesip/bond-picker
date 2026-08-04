@@ -17,12 +17,16 @@ import { Dialog, DialogContent } from './ui/dialog';
 import { BondCard } from './bond-card';
 import { AddChosenForm } from './add-chosen-form';
 
-export function BondSearch() {
+type BondSearchProps = {
+  isUserLogedIn: boolean
+}
+
+export function BondSearch({isUserLogedIn}: BondSearchProps) {
   const [open, setOpen] = useState(false);
   const [bondOpen, setBondOpen] = useState(false);
   const [value, setValue] = useState('');
   const { data: bonds, isLoading } = useBondWithRatings();
-  const { refetch } = usePickedBonds();
+  const { refetch } = usePickedBonds(isUserLogedIn);
 
   function isIsinQuery(search: string) {
     const s = search.trim().toUpperCase();

@@ -34,16 +34,20 @@ function getTheme(theme?: string): AgChartTheme {
 type BondChartProps = {
   data: BondWithRatings[]
   picked: Bond[]
+  suspiciousIds: string[]
   isLoading: boolean
+  isUserLogedIn: boolean
 }
 
-export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
+export const BondChart = ({ data, isLoading, picked, suspiciousIds, isUserLogedIn }: BondChartProps) => {
   const { theme } = useTheme();
-  const navigate = useNavigate({ from: '/app/picker' });
+  const navigate = useNavigate({ from: isUserLogedIn ? '/app/picker' : '/app/watch' });
   const chartRef = useRef<AgChartInstance>(null);
 
   const pickedMap = useMemo(() => new Map(picked.map(bond => [bond.id, bond])), [picked]);
   const isMobile = useIsMobile();
+
+  const setSuspIds = useMemo(() => new Set(suspiciousIds), [suspiciousIds]);
    
   const options: AgChartOptions = useMemo(() => ({
     theme  : getTheme(theme),
@@ -61,6 +65,42 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
         title         : 'All',
         xKey          : 'duration',
         data          : data.filter(bond => !pickedMap.has(bond.id)),
+        xName         : 'Дюрация',
+        yKey          : 'ytm',
+        yName         : 'Доходность(YTM)',
+        tooltip       : {
+          enabled : !isMobile,
+          renderer: (params) => {
+            const { datum } = params;
+            
+            return {
+              title: datum.name
+            };
+          }
+        },
+        listeners: {
+          seriesNodeClick: (event) => {
+            const id = event.datum?.id;
+            if (!id) return;
+
+            navigate({
+              search: (prev) => ({
+                ...prev,
+                id: String(id),
+              }),
+              replace       : false,
+              resetScroll   : false,
+              viewTransition: true,
+            });
+          }
+        },
+      },
+      {
+        nodeClickRange: 'nearest',
+        type          : 'scatter',
+        title         : 'AI',
+        xKey          : 'duration',
+        data          : data.filter(bond => setSuspIds.has(bond.id)),
         xName         : 'Дюрация',
         yKey          : 'ytm',
         yName         : 'Доходность(YTM)',
@@ -127,42 +167,6 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
           }
         },
       },
-      {
-        nodeClickRange: 'nearest',
-        type          : 'scatter',
-        title         : 'AI',
-        xKey          : 'duration',
-        data          : data.filter((_, i) => i % 3 === 2),
-        xName         : 'Дюрация',
-        yKey          : 'ytm',
-        yName         : 'Доходность(YTM)',
-        tooltip       : {
-          enabled : !isMobile,
-          renderer: (params) => {
-            const { datum } = params;
-            
-            return {
-              title: datum.name
-            };
-          }
-        },
-        listeners: {
-          seriesNodeClick: (event) => {
-            const id = event.datum?.id;
-            if (!id) return;
-
-            navigate({
-              search: (prev) => ({
-                ...prev,
-                id: String(id),
-              }),
-              replace       : false,
-              resetScroll   : false,
-              viewTransition: true,
-            });
-          }
-        },
-      }
     ],
     interaction: {
       mode: 'nearest',
@@ -186,7 +190,7 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
         },
       },
     },
-  }), [theme, data, isMobile, pickedMap, navigate]);
+  }), [theme, isMobile, data, pickedMap, navigate, setSuspIds]);
 
   return (
     <>

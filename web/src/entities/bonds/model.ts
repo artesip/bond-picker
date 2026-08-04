@@ -31,6 +31,7 @@ export type Rating = {
     releaseUrl: string
     objectName: string
     releaseDate: Date
+    isRevoked: boolean
 }
 
 export type BondWithRatings = Bond & {

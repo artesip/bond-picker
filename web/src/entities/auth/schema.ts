@@ -8,8 +8,8 @@ import { useState } from 'react';
 import { Login, Registration } from '#/entities/auth/api';
 
 const LoginSchema = z.object({
-  username: z.string().min(3, 'Минимальная длина 3 символа'),
-  password: z.string().min(3, 'Минимальная длина 3 символов')
+  username: z.string().trim().min(4, 'Минимальная длина 4 символа'),
+  password: z.string().trim().min(8, 'Минимальная длина 8 символов')
 });
 
 export type LoginInput = z.infer<typeof LoginSchema>;
@@ -57,8 +57,8 @@ export function useLoginForm() {
 
 
 const RegistrationSchema = z.object({
-  username: z.string().min(3, 'Минимальная длина 3 символа'),
-  password: z.string().min(3, 'Минимальная длина 3 символов')
+  username: z.string().trim().min(4, 'Минимальная длина 4 символа'),
+  password: z.string().trim().min(8, 'Минимальная длина 8 символов')
 });
 
 export type RegistrationInput = z.infer<typeof RegistrationSchema>;

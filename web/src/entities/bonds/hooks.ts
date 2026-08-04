@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { GetBonds, GetPicked, GetRatings } from './api';
+import { GetBonds, GetKeyRate, GetPicked, GetRatings } from './api';
 
 import type { Rating } from './model';
 
@@ -14,12 +14,13 @@ export function useBonds() {
   });
 }
 
-export function usePickedBonds() {
+export function usePickedBonds(enabled: boolean = true) {
   return useQuery({
     queryKey       : ['picked-bonds'],
     queryFn        : GetPicked,
     staleTime      : 1000 * 60,
     placeholderData: keepPreviousData,
+    enabled        : enabled,
   });
 }
 
@@ -27,6 +28,15 @@ export function useRatings() {
   return useQuery({
     queryKey       : ['ratings'],
     queryFn        : GetRatings,
+    staleTime      : 1000 * 60,
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useKeyRate() {
+  return useQuery({
+    queryKey       : ['key-rate'],
+    queryFn        : GetKeyRate,
     staleTime      : 1000 * 60,
     placeholderData: keepPreviousData,
   });

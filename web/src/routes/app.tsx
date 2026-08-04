@@ -11,6 +11,8 @@ import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink } from '#/co
 import { Alert, AlertDescription } from '#/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipTrigger } from '#/components/ui/tooltip';
 import { BondSearch } from '#/components/search';
+import { useKeyRate } from '#/entities/bonds/hooks';
+import { Button } from '#/components/ui/button';
 
 export const Route = createFileRoute('/app')({
   component: AppLayout,
@@ -30,15 +32,18 @@ const buttons = [
 ];
 
 function AppLayout() {
-  const portfolios = ['default'];
-  const { data: user } = useQuery({ queryKey: ['me'], queryFn: Me });
-
   const { pathname } = useLocation();
+  const isUserLogedIn = pathname !== '/app/watch';
+
+  const portfolios = ['default'];
+  const { data: user } = useQuery({ queryKey: ['me'], queryFn: Me, enabled: isUserLogedIn });
+  const { data: keyRate, isLoading: keyRateLoading } = useKeyRate();
+
   const currentBreadLink = buttons.filter((button) => button.url === pathname)[0];
 
   return (
     <SidebarProvider className='h-screen'>
-      <Sidebar variant='floating'>
+      {isUserLogedIn && <Sidebar variant='floating'>
         <SidebarHeader > 
           <PortfolioSwitcher defaultPortfolio='default' portfolios={ portfolios }/>
 
@@ -66,7 +71,7 @@ function AppLayout() {
           
         </SidebarContent>
         <SidebarFooter className='items-center'>
-          <BondSearch/>
+          <BondSearch isUserLogedIn={ isUserLogedIn }/>
           
           <NavUser
             user={ { username: user?.username || '', avatar: 'https://img.daisyui.com/images/profile/demo/yellingcat@192.webp' } }
@@ -74,17 +79,21 @@ function AppLayout() {
           <span className='text-gray-600 text-[14px]'>v1.0.0</span>
         </SidebarFooter>
       </Sidebar>
+      }
       
       <div className='flex flex-col p-2 h-full w-full'>
         <header className='flex h-12 shrink-0 items-center gap-2 px-2'>
-          <SidebarTrigger className='-ml-1'/>
-          
-          <div>
-            <Separator
-              orientation='vertical'
-              className='mr-2 data-[orientation=vertical]:h-5'
-            />
-          </div>
+          { isUserLogedIn 
+          && <>
+            <SidebarTrigger className='-ml-1'/>
+            <div>
+              <Separator
+                orientation='vertical'
+                className='mr-2 data-[orientation=vertical]:h-5'
+              />
+            </div>
+          </>
+          }
 
 
           {
@@ -114,19 +123,28 @@ function AppLayout() {
           }
 
           {
-            currentBreadLink && currentBreadLink.url === '/app/chosen'
+            !keyRateLoading && currentBreadLink && currentBreadLink.url === '/app/chosen'
               && <div className='ml-auto'>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Alert className='p-1 lg:py-2 lg:px-3'>
-                      <AlertDescription className='truncate!'>14.5% ─ Ключевая ставка ЦБ РФ</AlertDescription>
+                      <AlertDescription className='truncate!'>{keyRate}% ─ Ключевая ставка ЦБ РФ</AlertDescription>
                     </Alert>
                   </TooltipTrigger>
                   <TooltipContent className='items-center'>
-                    <p>14.5% ─ Ключевая ставка ЦБ РФ</p>
+                    <p>{keyRate}% ─ Ключевая ставка ЦБ РФ</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
+          }
+
+          {
+            !isUserLogedIn
+            && <a href='/login' className='ml-auto w-23 cursor-pointer'> 
+              <Button variant={ 'secondary' } className='w-full cursor-pointer'>
+                Выйти
+              </Button>
+            </a>
           }
           
         </header>

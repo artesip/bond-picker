@@ -10,14 +10,15 @@ import type { BondWithRatings } from '#/entities/bonds/model';
 
 type ChosenBondProps = {
     data: BondWithRatings[]
+    isUserLogedIn: boolean
     refetch: () => void
 }
 
-export function ChosenBond({ data, refetch }: ChosenBondProps) {
-  const { id } = useSearch({ from: '/app/picker' });
+export function ChosenBond({ data, refetch, isUserLogedIn }: ChosenBondProps) {
+  const { id } = useSearch({ from: isUserLogedIn ? '/app/picker' : '/app/watch' });
   const isMobile = useIsMobile();
   const selectedBond = data.find(bond => bond.id === id);
-  const navigate = useNavigate({ from: '/app/picker' });
+  const navigate = useNavigate({ from: isUserLogedIn ? '/app/picker' : '/app/watch' });
 
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -46,7 +47,7 @@ export function ChosenBond({ data, refetch }: ChosenBondProps) {
       } }>
         <DrawerContent className='gap-4 mb-4 px-2'>
           <BondCard bond={ selectedBond } className='bg-transparent! border-0! ring-0 shadow-none mt-0'/> 
-          <AddChosenForm bond={ selectedBond } refetch={ refetch }/>
+          { isUserLogedIn && <AddChosenForm bond={ selectedBond } refetch={ refetch }/> }
         </DrawerContent>
       </Drawer>
     );

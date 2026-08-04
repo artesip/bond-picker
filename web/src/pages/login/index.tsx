@@ -18,7 +18,7 @@ import {
 } from '#/components/ui/field';
 import { Input } from '#/components/ui/input';
 
-import { Spinner } from './ui/spinner';
+import { Spinner } from '../../components/ui/spinner';
 
 import type { UseFormReturn } from 'react-hook-form';
 import type { LoginInput } from '#/entities/auth/schema';
@@ -36,7 +36,7 @@ export function LoginForm({
 }: LoginFormProps) {
   
   return (
-    <div className={ cn('flex flex-col gap-6', className) } { ...props }>
+    <div className={ cn('relative flex flex-col', className) } { ...props }>
       <Card>
         <CardHeader>
           <CardTitle>Вход в аккаунт</CardTitle>
@@ -96,6 +96,12 @@ export function LoginForm({
           </form>
         </CardContent>
       </Card>
+
+      <Field className='absolute inset-x-0 top-full mt-4'>
+        <FieldDescription className='text-center'>
+          <a href='/app/watch'>Я просто посмотреть</a>
+        </FieldDescription>
+      </Field>
     </div>
   );
 }

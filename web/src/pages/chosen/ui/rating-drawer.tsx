@@ -39,7 +39,7 @@ export function RatingDrawer({ bonds }: RatingDrawerProps) {
         },
       });
     } }>
-      <DrawerContent className='max-w-md!'>
+      <DrawerContent className='lg:max-w-lg!'>
         <DrawerHeader className='text-[18px]'>
           История рейтингов
         </DrawerHeader>

@@ -13,6 +13,7 @@ import { Route as RegistrationRouteImport } from './routes/registration'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as AppWatchRouteImport } from './routes/app/watch'
 import { Route as AppPickerRouteImport } from './routes/app/picker'
 import { Route as AppChosenRouteImport } from './routes/app/chosen'
 
@@ -36,6 +37,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppWatchRoute = AppWatchRouteImport.update({
+  id: '/watch',
+  path: '/watch',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPickerRoute = AppPickerRouteImport.update({
   id: '/picker',
   path: '/picker',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/registration': typeof RegistrationRoute
   '/app/chosen': typeof AppChosenRoute
   '/app/picker': typeof AppPickerRoute
+  '/app/watch': typeof AppWatchRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/registration': typeof RegistrationRoute
   '/app/chosen': typeof AppChosenRoute
   '/app/picker': typeof AppPickerRoute
+  '/app/watch': typeof AppWatchRoute
   '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/registration': typeof RegistrationRoute
   '/app/chosen': typeof AppChosenRoute
   '/app/picker': typeof AppPickerRoute
+  '/app/watch': typeof AppWatchRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
@@ -79,9 +88,16 @@ export interface FileRouteTypes {
     | '/registration'
     | '/app/chosen'
     | '/app/picker'
+    | '/app/watch'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/registration' | '/app/chosen' | '/app/picker' | '/app'
+  to:
+    | '/login'
+    | '/registration'
+    | '/app/chosen'
+    | '/app/picker'
+    | '/app/watch'
+    | '/app'
   id:
     | '__root__'
     | '/app'
@@ -89,6 +105,7 @@ export interface FileRouteTypes {
     | '/registration'
     | '/app/chosen'
     | '/app/picker'
+    | '/app/watch'
     | '/app/'
   fileRoutesById: FileRoutesById
 }
@@ -128,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/watch': {
+      id: '/app/watch'
+      path: '/watch'
+      fullPath: '/app/watch'
+      preLoaderRoute: typeof AppWatchRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/picker': {
       id: '/app/picker'
       path: '/picker'
@@ -148,12 +172,14 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppChosenRoute: typeof AppChosenRoute
   AppPickerRoute: typeof AppPickerRoute
+  AppWatchRoute: typeof AppWatchRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppChosenRoute: AppChosenRoute,
   AppPickerRoute: AppPickerRoute,
+  AppWatchRoute: AppWatchRoute,
   AppIndexRoute: AppIndexRoute,
 }
 

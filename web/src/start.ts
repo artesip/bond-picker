@@ -16,7 +16,7 @@ export const authMiddleware = createMiddleware()
 
     if (hasToken && (url.pathname === '/login' || url.pathname === '/registration')) {
       throw redirect({ to: '/app/chosen' });
-    } else if (!(url.pathname === '/login' || url.pathname === '/registration') && !hasToken) {
+    } else if (!(url.pathname === '/login' || url.pathname === '/registration') && !hasToken && url.pathname !== '/app/watch') {
       throw redirect({ to: '/login' });
     }
 
