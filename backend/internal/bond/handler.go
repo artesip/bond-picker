@@ -37,6 +37,15 @@ func (h *handler) GetBonds(c *echo.Context) error {
 	return c.JSON(http.StatusOK, bonds)
 }
 
+func (h *handler) GetFullBonds(c *echo.Context) error {
+	bonds, err := h.repo.GetFullBonds(c.Request().Context())
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, bonds)
+}
+
 func (h *handler) GetCompanies(c *echo.Context) error {
 	companies, err := h.repo.GetCompanies(c.Request().Context())
 	if err != nil {
@@ -153,6 +162,7 @@ func (h *handler) DeletePickedBond(c *echo.Context) error {
 
 func (h *handler) InitRoutes(e *echo.Echo) {
 	e.GET("/api/v1/bond", h.GetBonds)
+	e.GET("/api/v1/bond/full", h.GetFullBonds)
 	e.GET("/api/v1/bond/pick", h.GetPickedBond, h.middlewares...)
 	e.GET("/api/v1/bond/:id", h.GetBond)
 	e.GET("/api/v1/bond/key-rate", h.GetKeyRate)

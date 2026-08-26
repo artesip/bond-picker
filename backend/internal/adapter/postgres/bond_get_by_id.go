@@ -32,21 +32,26 @@ func (r *Repository) GetBondById(ctx context.Context, id domain.UUID) (*domain.B
 		    b.currency_id,
 		    b.board_id,
 		    b.company_id,
-		    b.mat_date
+		    b.mat_date,
+		    b.created_at,
+		    b.updated_at
 		FROM t_bond b
 		WHERE b.id = @id
 	`
 
-	row := r.client.Pool.QueryRow(ctx, query, pgx.NamedArgs{"id": id})
+	rows, err := r.client.Pool.Query(ctx, query, pgx.NamedArgs{"id": id})
+	if err != nil {
+		return nil, fmt.Errorf("get bond by id: %w", err)
+	}
+	defer rows.Close()
 
-	bond := new(domain.Bond)
-	if err := row.Scan(&bond.ID, &bond.Isin, &bond.Name, &bond.Type,
-		&bond.SubType, &bond.Price, &bond.YTM, &bond.Duration,
-		&bond.LotSize, &bond.FaceValue, &bond.CouponPercent, &bond.CouponPeriod,
-		&bond.NextCoupon, &bond.CallOption, &bond.PutOption, &bond.ValToday,
-		&bond.Acruedint, &bond.IssueSize, &bond.CurrencyID, &bond.BoardID, &bond.CompanyID, &bond.MatDate); err != nil {
-		return bond, fmt.Errorf("query exec error: %w", err)
+	bond, err := pgx.CollectExactlyOneRow(
+		rows,
+		pgx.RowToStructByName[domain.Bond],
+	)
+	if err != nil {
+		return nil, fmt.Errorf("scan bond: %w", err)
 	}
 
-	return bond, nil
+	return &bond, nil
 }

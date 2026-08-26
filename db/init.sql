@@ -97,3 +97,4 @@ CREATE TABLE IF NOT EXISTS t_rating_change
 );
 
 CREATE INDEX company_id_indx ON t_rating_change (company_id);
+CREATE INDEX company_id_indx ON t_bond (company_id);

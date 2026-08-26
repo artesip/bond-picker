@@ -32,7 +32,9 @@ func (r *Repository) GetBonds(ctx context.Context, bondType string) ([]domain.Bo
 		    b.currency_id,
 		    b.board_id,
 		    b.company_id,
-		    b.mat_date
+		    b.mat_date,
+		    b.created_at,
+		    b.updated_at
 		FROM t_bond b
 		WHERE b.type = @type OR @type = ''
 	`

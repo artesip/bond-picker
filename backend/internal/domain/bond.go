@@ -33,11 +33,14 @@ type Bond struct {
 
 	CurrencyID string `json:"currencyID"`
 	BoardID    string `json:"boardID"`
+
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-type BondWithCompany struct {
+type FullBond struct {
 	Bond
-	Company Company
+	Company CompanyWithRating `json:"company"`
 }
 
 type BondWithCount struct {

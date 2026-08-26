@@ -33,6 +33,8 @@ func (r *Repository) GetPickedBonds(ctx context.Context, userID domain.UUID) ([]
 		    b.board_id,
 		    b.company_id,
 		    b.mat_date,
+		    b.created_at,
+		    b.updated_at,
 		    ptb.count
 		FROM t_portfolio p
 		JOIN t_portfolio_to_bond ptb ON p.id = ptb.portfolio_id
