@@ -9,11 +9,14 @@ import (
 	"backend/pkg/jwt"
 	"backend/pkg/logger"
 	"backend/pkg/postgres"
-	"backend/pkg/server/http"
+	myhttp "backend/pkg/server/http"
 	"backend/pkg/svc"
 	"fmt"
+	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
 const configPath = "config.yaml"
@@ -61,18 +64,39 @@ func coreInit() (svc.Core, error) {
 		cronService,
 	}
 
-	middlewares := []echo.MiddlewareFunc{
+	rateLimiterConfig := middleware.RateLimiterConfig{
+		Skipper: middleware.DefaultSkipper,
+		Store: middleware.NewRateLimiterMemoryStoreWithConfig(
+			middleware.RateLimiterMemoryStoreConfig{Rate: 10, Burst: 25, ExpiresIn: 1 * time.Minute},
+		),
+		IdentifierExtractor: func(c *echo.Context) (string, error) {
+			id := c.RealIP()
+			return id, nil
+		},
+		ErrorHandler: func(c *echo.Context, err error) error {
+			return c.JSON(http.StatusForbidden, nil)
+		},
+		DenyHandler: func(c *echo.Context, identifier string, err error) error {
+			return c.JSON(http.StatusTooManyRequests, nil)
+		},
+	}
+
+	requiredMiddlewares := []echo.MiddlewareFunc{
+		middleware.RateLimiterWithConfig(rateLimiterConfig),
+	}
+
+	optionalMiddlewares := []echo.MiddlewareFunc{
 		jwt.Middleware(publicKey),
 	}
 
 	handlers := []svc.Handler{
-		metrics.NewHandler(bondUseCase, repo, log),
-		bond.NewHandler(repo, log, middlewares),
-		auth.NewHandler(log, repo, privateKey, authUseCase, middlewares),
+		metrics.NewHandler(bondUseCase, repo, log, requiredMiddlewares, optionalMiddlewares),
+		bond.NewHandler(repo, log, requiredMiddlewares, optionalMiddlewares),
+		auth.NewHandler(log, repo, privateKey, authUseCase, requiredMiddlewares, optionalMiddlewares),
 	}
 
 	servers := []svc.Server{
-		http.NewServer(handlers, cfg.Server),
+		myhttp.NewServer(handlers, cfg.Server),
 	}
 
 	return svc.Core{Logger: log, Config: cfg, Handlers: handlers, Services: services, Servers: servers}, nil

@@ -16,15 +16,17 @@ import (
 )
 
 type handler struct {
-	logger      *slog.Logger
-	repo        *postgres.Repository
-	jwtKey      crypto.PrivateKey
-	useCase     *UseCase
-	middlewares []echo.MiddlewareFunc
+	logger  *slog.Logger
+	repo    *postgres.Repository
+	jwtKey  crypto.PrivateKey
+	useCase *UseCase
+
+	requiredMiddlewares []echo.MiddlewareFunc
+	optionalMiddlewares []echo.MiddlewareFunc
 }
 
-func NewHandler(l *slog.Logger, r *postgres.Repository, jwtKey crypto.PrivateKey, u *UseCase, m []echo.MiddlewareFunc) svc.Handler {
-	return &handler{logger: l, jwtKey: jwtKey, repo: r, useCase: u, middlewares: m}
+func NewHandler(l *slog.Logger, r *postgres.Repository, jwtKey crypto.PrivateKey, u *UseCase, req []echo.MiddlewareFunc, opt []echo.MiddlewareFunc) svc.Handler {
+	return &handler{logger: l, jwtKey: jwtKey, repo: r, useCase: u, requiredMiddlewares: req, optionalMiddlewares: opt}
 }
 
 func (h *handler) Login(c *echo.Context) error {
@@ -104,8 +106,10 @@ func (h *handler) Me(c *echo.Context) error {
 }
 
 func (h *handler) InitRoutes(e *echo.Echo) {
-	e.POST("/api/v1/auth/login", h.Login)
-	e.POST("/api/v1/auth/logout", h.Logout)
-	e.POST("/api/v1/auth/registration", h.Register)
-	e.GET("/api/v1/auth/me", h.Me, h.middlewares...)
+	unionOfMiddlewares := append(h.requiredMiddlewares, h.optionalMiddlewares...)
+
+	e.POST("/api/v1/auth/login", h.Login, h.requiredMiddlewares...)
+	e.POST("/api/v1/auth/logout", h.Logout, h.requiredMiddlewares...)
+	e.POST("/api/v1/auth/registration", h.Register, h.requiredMiddlewares...)
+	e.GET("/api/v1/auth/me", h.Me, unionOfMiddlewares...)
 }

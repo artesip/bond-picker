@@ -16,10 +16,13 @@ type handler struct {
 	useCase *bond.UseCase
 	repo    *postgres.Repository
 	logger  *slog.Logger
+
+	requiredMiddlewares []echo.MiddlewareFunc
+	optionalMiddlewares []echo.MiddlewareFunc
 }
 
-func NewHandler(u *bond.UseCase, r *postgres.Repository, l *slog.Logger) svc.Handler {
-	return &handler{useCase: u, repo: r, logger: l}
+func NewHandler(u *bond.UseCase, r *postgres.Repository, l *slog.Logger, req []echo.MiddlewareFunc, opt []echo.MiddlewareFunc) svc.Handler {
+	return &handler{useCase: u, repo: r, logger: l, requiredMiddlewares: req, optionalMiddlewares: opt}
 }
 
 func (h *handler) Ping(c *echo.Context) error {
@@ -59,9 +62,11 @@ func (h *handler) UpdateData(c *echo.Context) error {
 }
 
 func (h *handler) InitRoutes(e *echo.Echo) {
-	e.GET("/api/v1/metric/ping", h.Ping)
-	e.GET("/api/v1/metric/bond/update", h.GetEvents)
-	e.GET("/api/v1/metric/bond/update/last", h.GetLastEvent)
+	unionOfMiddlewares := append(h.requiredMiddlewares, h.optionalMiddlewares...)
 
-	e.POST("/api/v1/metric/bond/update", h.UpdateData)
+	e.GET("/api/v1/metric/ping", h.Ping, h.requiredMiddlewares...)
+	e.GET("/api/v1/metric/bond/update", h.GetEvents, h.requiredMiddlewares...)
+	e.GET("/api/v1/metric/bond/update/last", h.GetLastEvent, h.requiredMiddlewares...)
+
+	e.POST("/api/v1/metric/bond/update", h.UpdateData, unionOfMiddlewares...)
 }

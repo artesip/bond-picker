@@ -17,13 +17,15 @@ import (
 )
 
 type handler struct {
-	logger      *slog.Logger
-	repo        *postgres.Repository
-	middlewares []echo.MiddlewareFunc
+	logger *slog.Logger
+	repo   *postgres.Repository
+
+	requiredMiddlewares []echo.MiddlewareFunc
+	optionalMiddlewares []echo.MiddlewareFunc
 }
 
-func NewHandler(repo *postgres.Repository, log *slog.Logger, middlewares []echo.MiddlewareFunc) svc.Handler {
-	return &handler{logger: log, repo: repo, middlewares: middlewares}
+func NewHandler(repo *postgres.Repository, log *slog.Logger, req []echo.MiddlewareFunc, opt []echo.MiddlewareFunc) svc.Handler {
+	return &handler{logger: log, repo: repo, requiredMiddlewares: req, optionalMiddlewares: opt}
 }
 
 func (h *handler) GetBonds(c *echo.Context) error {
@@ -161,17 +163,19 @@ func (h *handler) DeletePickedBond(c *echo.Context) error {
 }
 
 func (h *handler) InitRoutes(e *echo.Echo) {
-	e.GET("/api/v1/bond", h.GetBonds)
-	e.GET("/api/v1/bond/full", h.GetFullBonds)
-	e.GET("/api/v1/bond/pick", h.GetPickedBond, h.middlewares...)
-	e.GET("/api/v1/bond/:id", h.GetBond)
-	e.GET("/api/v1/bond/key-rate", h.GetKeyRate)
+	unionOfMiddlewares := append(h.requiredMiddlewares, h.optionalMiddlewares...)
 
-	e.GET("/api/v1/bond/company", h.GetCompanies)
-	e.GET("/api/v1/bond/company/:id", h.GetCompany)
+	e.GET("/api/v1/bond", h.GetBonds, h.requiredMiddlewares...)
+	e.GET("/api/v1/bond/full", h.GetFullBonds, h.requiredMiddlewares...)
+	e.GET("/api/v1/bond/pick", h.GetPickedBond, unionOfMiddlewares...)
+	e.GET("/api/v1/bond/:id", h.GetBond, h.requiredMiddlewares...)
+	e.GET("/api/v1/bond/key-rate", h.GetKeyRate, h.requiredMiddlewares...)
 
-	e.GET("/api/v1/bond/rating", h.GetRatings)
+	e.GET("/api/v1/bond/company", h.GetCompanies, h.requiredMiddlewares...)
+	e.GET("/api/v1/bond/company/:id", h.GetCompany, h.requiredMiddlewares...)
 
-	e.POST("/api/v1/bond/pick/:id", h.PickBond, h.middlewares...)
-	e.DELETE("/api/v1/bond/pick/:id", h.DeletePickedBond, h.middlewares...)
+	e.GET("/api/v1/bond/rating", h.GetRatings, h.requiredMiddlewares...)
+
+	e.POST("/api/v1/bond/pick/:id", h.PickBond, unionOfMiddlewares...)
+	e.DELETE("/api/v1/bond/pick/:id", h.DeletePickedBond, unionOfMiddlewares...)
 }
