@@ -4,6 +4,7 @@ import (
 	"backend/pkg/config"
 	"backend/pkg/svc"
 	"context"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -19,9 +20,33 @@ type server struct {
 	sc   *echo.StartConfig
 }
 
-func NewServer(handlers []svc.Handler, config config.ServerConfig) svc.Server {
+func NewServer(handlers []svc.Handler, config config.ServerConfig, logger *slog.Logger) svc.Server {
 	e := echo.New()
-	e.Use(middleware.RequestLogger())
+	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		LogMethod:  true,
+		LogLatency: true,
+		LogURI:     true,
+		LogStatus:  true,
+		LogValuesFunc: func(c *echo.Context, v middleware.RequestLoggerValues) error {
+			if v.Error == nil {
+				logger.LogAttrs(context.Background(), slog.LevelInfo, "REQUEST",
+					slog.String("method", v.Method),
+					slog.Int("status", v.Status),
+					slog.String("uri", v.URI),
+					slog.Int64("latency", v.Latency.Milliseconds()),
+				)
+			} else {
+				logger.LogAttrs(context.Background(), slog.LevelError, "REQUEST_ERROR",
+					slog.String("method", v.Method),
+					slog.Int("status", v.Status),
+					slog.String("uri", v.URI),
+					slog.Int64("latency", v.Latency.Milliseconds()),
+					slog.String("err", v.Error.Error()),
+				)
+			}
+			return nil
+		},
+	}))
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{

@@ -6,14 +6,14 @@ import (
 )
 
 type Rating struct {
-	ID         UUID      `json:"id"`
-	CompanyID  string    `json:"companyID"`
-	Rating     string    `json:"ratingValue"`
-	AgencyName string    `json:"agencyName"`
+	ID         UUID      `json:"id" db:"id"`
+	CompanyID  string    `json:"companyID" db:"company_id"`
+	Rating     string    `json:"ratingValue" db:"rating"`
+	AgencyName string    `json:"agencyName" db:"agency_name"`
 	ReleaseUrl string    `json:"releaseUrl" db:"url"`
-	ObjectName string    `json:"objectName"`
-	Date       time.Time `json:"releaseDate"`
-	IsRevoked  bool      `json:"isRevoked"`
+	ObjectName string    `json:"objectName" db:"object_name"`
+	Date       time.Time `json:"releaseDate" db:"date"`
+	IsRevoked  bool      `json:"isRevoked" db:"is_revoked"`
 }
 
 func NewRating(rating cbr.Rating) (*Rating, error) {

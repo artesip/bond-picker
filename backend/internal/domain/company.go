@@ -7,5 +7,5 @@ type Company struct {
 
 type CompanyWithRating struct {
 	Company
-	Ratings []Rating `json:"ratings"`
+	Ratings []Rating `json:"ratings" db:"ratings"`
 }

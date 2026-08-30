@@ -38,9 +38,9 @@ type Bond struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-type FullBond struct {
-	Bond
-	Company CompanyWithRating `json:"company"`
+type FullBonds struct {
+	Bonds     []Bond              `json:"bonds"`
+	Companies []CompanyWithRating `json:"companies"`
 }
 
 type BondWithCount struct {

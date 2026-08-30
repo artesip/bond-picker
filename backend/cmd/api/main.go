@@ -102,7 +102,7 @@ func coreInit() (svc.Core, error) {
 	}
 
 	servers := []svc.Server{
-		myhttp.NewServer(handlers, cfg.Server),
+		myhttp.NewServer(handlers, cfg.Server, log),
 	}
 
 	return svc.Core{Logger: log, Config: cfg, Handlers: handlers, Services: services, Servers: servers}, nil

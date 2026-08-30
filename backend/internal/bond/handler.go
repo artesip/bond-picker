@@ -12,7 +12,6 @@ import (
 	"strconv"
 
 	"github.com/google/uuid"
-
 	"github.com/labstack/echo/v5"
 )
 
@@ -40,12 +39,12 @@ func (h *handler) GetBonds(c *echo.Context) error {
 }
 
 func (h *handler) GetFullBonds(c *echo.Context) error {
-	bonds, err := h.repo.GetFullBonds(c.Request().Context())
+	fullBonds, err := h.repo.GetFullBonds(c.Request().Context())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, bonds)
+	return c.JSON(http.StatusOK, fullBonds)
 }
 
 func (h *handler) GetCompanies(c *echo.Context) error {

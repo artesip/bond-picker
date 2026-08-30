@@ -32,6 +32,8 @@ func (b *UseCase) UpdateBonds(ctx context.Context, start time.Time) (err error) 
 		}
 	}()
 
+	b.logger.Info("starting to update bond data")
+
 	if err := b.repo.CreateUpdateEvent(ctx, start, postgres.BondUpdateEvent); err != nil {
 		err = fmt.Errorf("update-bonds event creation error: %w", err)
 
