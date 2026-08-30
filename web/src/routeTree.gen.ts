@@ -9,17 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RegistrationRouteImport } from './routes/registration'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as RegistrationRouteImport } from './routes/registration'
 import { Route as AppIndexRouteImport } from './routes/app/index'
-import { Route as AppWatchRouteImport } from './routes/app/watch'
-import { Route as AppPickerRouteImport } from './routes/app/picker'
 import { Route as AppChosenRouteImport } from './routes/app/chosen'
+import { Route as AppPickerRouteImport } from './routes/app/picker'
+import { Route as AppWatchRouteImport } from './routes/app/watch'
 
-const RegistrationRoute = RegistrationRouteImport.update({
-  id: '/registration',
-  path: '/registration',
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -27,9 +27,9 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRoute = AppRouteImport.update({
-  id: '/app',
-  path: '/app',
+const RegistrationRoute = RegistrationRouteImport.update({
+  id: '/registration',
+  path: '/registration',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
@@ -37,9 +37,9 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppWatchRoute = AppWatchRouteImport.update({
-  id: '/watch',
-  path: '/watch',
+const AppChosenRoute = AppChosenRouteImport.update({
+  id: '/chosen',
+  path: '/chosen',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPickerRoute = AppPickerRouteImport.update({
@@ -47,9 +47,9 @@ const AppPickerRoute = AppPickerRouteImport.update({
   path: '/picker',
   getParentRoute: () => AppRoute,
 } as any)
-const AppChosenRoute = AppChosenRouteImport.update({
-  id: '/chosen',
-  path: '/chosen',
+const AppWatchRoute = AppWatchRouteImport.update({
+  id: '/watch',
+  path: '/watch',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -117,11 +117,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/registration': {
-      id: '/registration'
-      path: '/registration'
-      fullPath: '/registration'
-      preLoaderRoute: typeof RegistrationRouteImport
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -131,11 +131,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteImport
+    '/registration': {
+      id: '/registration'
+      path: '/registration'
+      fullPath: '/registration'
+      preLoaderRoute: typeof RegistrationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/': {
@@ -145,11 +145,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/watch': {
-      id: '/app/watch'
-      path: '/watch'
-      fullPath: '/app/watch'
-      preLoaderRoute: typeof AppWatchRouteImport
+    '/app/chosen': {
+      id: '/app/chosen'
+      path: '/chosen'
+      fullPath: '/app/chosen'
+      preLoaderRoute: typeof AppChosenRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/picker': {
@@ -159,11 +159,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPickerRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/chosen': {
-      id: '/app/chosen'
-      path: '/chosen'
-      fullPath: '/app/chosen'
-      preLoaderRoute: typeof AppChosenRouteImport
+    '/app/watch': {
+      id: '/app/watch'
+      path: '/watch'
+      fullPath: '/app/watch'
+      preLoaderRoute: typeof AppWatchRouteImport
       parentRoute: typeof AppRoute
     }
   }

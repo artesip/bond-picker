@@ -99,3 +99,18 @@ export function getBondWithRating(bondID: string, bonds: Bond[], companies: Comp
     ratings: companies.find(company => company.id === bond.companyID)?.ratings || []
   };
 }
+
+export function getLastNotRevokedRatings(companies: CompanyWithRating[]) {
+  const map = new Map<string, string>();
+
+  for (const company of companies) {
+    for (const rating of company.ratings) {
+      if (!rating.isRevoked) {
+        map.set(company.id, rating.ratingValue);
+        break;
+      }
+    }
+  }
+
+  return map;
+}
