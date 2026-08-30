@@ -1,9 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
 
-import { GetBonds, GetKeyRate, GetPicked, GetRatings } from './api';
-
-import type { Rating } from './model';
+import { GetBonds, GetBondsFull, GetKeyRate, GetPicked, GetRatings } from './api';
 
 export function useBonds() {
   return useQuery({
@@ -43,38 +40,11 @@ export function useKeyRate() {
 }
 
 export function useBondWithRatings() {
-  const { data: bonds, isLoading: bondLoading } = useBonds();
-  const { data: ratings, isLoading: ratingLoading } = useRatings();
-
-  const isLoading = bondLoading || ratingLoading;
-
-  const data = useMemo(() => {
-    if (isLoading) return [];
-
-    const ratingsByCompanyID = new Map<string, Rating[]>();
-
-    if (ratings?.length) {
-      for (const rating of ratings) {
-        const key = rating.companyID;
-
-        const list = ratingsByCompanyID.get(key);
-        if (list) {
-          list.push(rating);
-        } else {
-          ratingsByCompanyID.set(key, [rating]);
-        }
-      }
-    }
-
-    return (bonds ?? []).map((bond) => ({
-      ...bond,
-      ratings: ratingsByCompanyID.get(bond.companyID) ?? []
-    }));
-  }, [bonds, ratings, isLoading]);
-
-  return {
-    data,
-    isLoading
-  };
+  return useQuery({
+    queryKey       : ['bonds-full'],
+    queryFn        : GetBondsFull,
+    staleTime      : 1000 * 60,
+    placeholderData: keepPreviousData,
+  });
 }
 

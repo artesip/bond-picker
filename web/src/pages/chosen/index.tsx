@@ -2,7 +2,7 @@ import { AgGridReact } from 'ag-grid-react';
 import { AllCommunityModule  } from 'ag-grid-community';
 
 import { shadcnTheme } from '#/ag/theme';
-import { usePickedBonds, useRatings } from '#/entities/bonds/hooks';
+import { usePickedBonds } from '#/entities/bonds/hooks';
 import { withRuLocalization } from '#/ag/localization';
 import { DeleteIcon, RatingIcon } from '#/components/cell-renders/components';
 

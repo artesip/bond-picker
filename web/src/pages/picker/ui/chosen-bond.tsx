@@ -5,20 +5,23 @@ import { AddChosenForm } from '#/components/add-chosen-form';
 import { BondCard } from '#/components/bond-card';
 import { useIsMobile } from '#/hooks/use-mobile';
 import { Drawer, DrawerContent } from '#/components/ui/drawer';
+import { useBondWithRatings } from '#/entities/bonds/hooks';
+import { getBondWithRating } from '#/entities/bonds/model';
 
-import type { BondWithRatings } from '#/entities/bonds/model';
 
 type ChosenBondProps = {
-    data: BondWithRatings[]
     isUserLogedIn: boolean
     refetch: () => void
 }
 
-export function ChosenBond({ data, refetch, isUserLogedIn }: ChosenBondProps) {
+export function ChosenBond({ refetch, isUserLogedIn }: ChosenBondProps) {
   const { id } = useSearch({ from: isUserLogedIn ? '/app/picker' : '/app/watch' });
   const isMobile = useIsMobile();
-  const selectedBond = data.find(bond => bond.id === id);
   const navigate = useNavigate({ from: isUserLogedIn ? '/app/picker' : '/app/watch' });
+
+  const { data: bonds } = useBondWithRatings();
+
+  const selectedBond = getBondWithRating(id || '', bonds?.bonds || [], bonds?.companies || []);
 
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -55,8 +58,8 @@ export function ChosenBond({ data, refetch, isUserLogedIn }: ChosenBondProps) {
 
   return (
     <div className='flex flex-col gap-2'>
-      <BondCard bond={ data.filter(bond => bond.id === id)[0] }/> 
-      <AddChosenForm bond={ data.filter(bond => bond.id === id)[0] } refetch={ refetch }/>
+      <BondCard bond={ selectedBond }/> 
+      { isUserLogedIn && <AddChosenForm bond={ selectedBond } refetch={ refetch }/> }
     </div>
   );
 }

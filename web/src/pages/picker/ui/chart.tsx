@@ -12,7 +12,7 @@ import { useIsMobile } from '#/hooks/use-mobile';
 import { AI_ENABLED } from '#/entities/ai/hooks';
 
 import type { AgChartOptions, AgChartTheme, AgChartInstance } from 'ag-charts-community';
-import type { Bond, BondWithRatings } from '#/entities/bonds/model';
+import type { Bond } from '#/entities/bonds/model';
 
 
 ModuleRegistry.registerModules([
@@ -33,7 +33,7 @@ function getTheme(theme?: string): AgChartTheme {
 }
 
 type BondChartProps = {
-  data: BondWithRatings[]
+  data: Bond[]
   picked: Bond[]
   suspiciousIds: string[]
   isLoading: boolean

@@ -1,4 +1,4 @@
-import type { Bond, Rating } from './model';
+import type { Bond, FullBonds, Rating } from './model';
 
 const headers = new Headers({
   'Content-Type': 'application/json',
@@ -39,6 +39,46 @@ export async function GetBonds(): Promise<Bond[]> {
     .filter((element) => element.ytm <= 150.0 && element.ytm >= 0.0 && element.duration > 0.0);
 
   return result;
+}
+
+export async function GetBondsFull(): Promise<FullBonds> {
+  const resp = await fetch('/backend/api/v1/bond/full',
+    {
+      method : 'GET',
+      headers: headers,
+    }
+  );
+
+  if (!resp.ok) {
+    throw Error('Ошибка получения облигаций');
+  }
+
+  const data: FullBonds = await resp.json();
+
+  return {
+    bonds: data.bonds
+      .map((element) => ({
+        ...element,
+        price        : truncateDecimals(element.price, 2),
+        ytm          : truncateDecimals(element.ytm, 2),
+        faceValue    : truncateDecimals(element.faceValue, 2),
+        couponPercent: truncateDecimals(element.couponPercent, 2),
+        acruedint    : truncateDecimals(element.acruedint, 2),
+        duration     : truncateDecimals(element.duration / 365, 2),
+
+        nextCoupon: new Date(element.nextCoupon),
+        matDate   : new Date(element.matDate),
+        callOption: element.callOption ? new Date(element.callOption) : element.callOption,
+        putOption : element.putOption ? new Date(element.putOption) : element.putOption
+      })),
+    companies: data.companies.map((company) => ({
+      ...company,
+      ratings: company.ratings.map((rating) => ({
+        ...rating,
+        releaseDate: new Date(rating.releaseDate),
+      })),
+    })),
+  };
 }
 
 export async function GetRatings(): Promise<Rating[]> {

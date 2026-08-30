@@ -5,3 +5,5 @@ ai/learn/catboost_info
 ai/__pycache__
 ai/.ruff_cache
 goose.exe
+.postman
+postman

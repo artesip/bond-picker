@@ -34,8 +34,22 @@ export type Rating = {
     isRevoked: boolean
 }
 
+export type Company = {
+    id: string
+    name: string
+}
+
+export type CompanyWithRating = Company & {
+    ratings: Rating[]
+}
+
 export type BondWithRatings = Bond & {
     ratings: Rating[]
+}
+
+export type FullBonds = {
+    bonds: Bond[]
+    companies: CompanyWithRating[]
 }
 
 const ratingOrder: Record<string, number> = {
@@ -71,4 +85,17 @@ export function inRange(from: string, to: string, target: string): boolean {
   const rankTarget = ratingOrder[target] ?? Number.MAX_SAFE_INTEGER;
   
   return rankTarget <= rankFrom && rankTarget >= rankTo;
+}
+
+export function getBondWithRating(bondID: string, bonds: Bond[], companies: CompanyWithRating[]): BondWithRatings | null {
+  const bond = bonds.find(bond => bond.id === bondID);
+
+  if (bond === undefined) {
+    return null;
+  }
+
+  return {
+    ...bond,
+    ratings: companies.find(company => company.id === bond.companyID)?.ratings || []
+  };
 }
