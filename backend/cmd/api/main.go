@@ -24,7 +24,10 @@ const configPath = "config.yaml"
 func main() {
 	core, err := coreInit()
 	if core.Logger != nil && err != nil {
-		core.Logger.Error("core init error", "error", err)
+		core.Logger.Error("core init error: ", "error", err)
+		return
+	} else if err != nil {
+		fmt.Println("core init error: ", err)
 		return
 	}
 
@@ -35,7 +38,10 @@ func main() {
 }
 
 func coreInit() (svc.Core, error) {
-	cfg := config.LoadConfig(configPath)
+	cfg, err := config.LoadConfig(configPath)
+	if err != nil {
+		return svc.Core{}, fmt.Errorf("error loading config: %w", err)
+	}
 
 	log := logger.New()
 	privateKey, publicKey, err := jwt.LoadKeys(cfg.JWT.Path)

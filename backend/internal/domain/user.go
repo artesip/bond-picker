@@ -40,14 +40,14 @@ func (user *User) Validate() error {
 	if user == nil {
 		return ValidationErr
 	}
-	trimedUsername := strings.Trim(user.Username, " ")
-	trimedPassword := strings.Trim(string(user.Password), " ")
+	trimmedUsername := strings.Trim(user.Username, " ")
+	trimmedPassword := strings.Trim(string(user.Password), " ")
 
-	if len(trimedUsername) < 4 {
+	if len(trimmedUsername) < 4 {
 		return ValidationErr
 	}
 
-	if len(trimedPassword) < 8 {
+	if len(trimmedPassword) < 8 {
 		return ValidationErr
 	}
 
