@@ -1,20 +1,20 @@
 CREATE TABLE IF NOT EXISTS t_user
 (
-    id         UUID                     DEFAULT uuidv7() PRIMARY KEY,
+    id         UUID        DEFAULT uuidv7() PRIMARY KEY,
     username   TEXT UNIQUE NOT NULL,
     "password" TEXT        NOT NULL,
     salt       TEXT        NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS t_portfolio
 (
-    id         UUID                     DEFAULT uuidv7() PRIMARY KEY,
+    id         UUID        DEFAULT uuidv7() PRIMARY KEY,
     user_id    UUID references t_user (id),
     "name"     TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS t_company
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS t_company
 
 CREATE TABLE IF NOT EXISTS t_bond
 (
-    id             UUID                     DEFAULT uuidv4() PRIMARY KEY,
+    id             UUID        DEFAULT uuidv7() PRIMARY KEY,
     company_id     TEXT references t_company (id),
 
     isin           TEXT,
@@ -52,8 +52,8 @@ CREATE TABLE IF NOT EXISTS t_bond
     call_option    DATE,
     mat_date       DATE,
 
-    created_at     TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    updated_at     TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    created_at     TIMESTAMPTZ DEFAULT now(),
+    updated_at     TIMESTAMPTZ DEFAULT now(),
 
     CONSTRAINT unique_isin_board UNIQUE (isin, board_id)
 );
@@ -62,8 +62,8 @@ CREATE TABLE IF NOT EXISTS t_portfolio_to_bond
 (
     portfolio_id UUID references t_portfolio (id),
     bond_id      UUID references t_bond (id),
-    count        bigint,
-    created_at   TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    count        BIGINT,
+    created_at   TIMESTAMPTZ DEFAULT now(),
 
     PRIMARY KEY (portfolio_id, bond_id)
 );
@@ -74,8 +74,8 @@ CREATE TABLE IF NOT EXISTS t_events
     type     VARCHAR(100) NOT NULL,
     "status" VARCHAR(100),
     msg      TEXT,
-    "start"  TIMESTAMP WITH TIME ZONE,
-    "end"    TIMESTAMP WITH TIME ZONE
+    "start"  TIMESTAMPTZ,
+    "end"    TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS t_rating_change

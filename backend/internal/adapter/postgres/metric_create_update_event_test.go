@@ -3,6 +3,7 @@ package postgres_test
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -23,4 +24,6 @@ func TestCreateUpdateEvent(t *testing.T) {
 	assert.Equal(t, statusUpdating, last.Status)
 	require.NotNil(t, last.Start)
 	assert.True(t, start.Equal(*last.Start))
+	require.NotNil(t, last.End)
+	assert.True(t, start.Add(-time.Second).Equal(*last.End))
 }
