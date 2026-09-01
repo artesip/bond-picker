@@ -6,6 +6,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"backend/internal/domain"
 )
 
 func TestGetBondsByType(t *testing.T) {
@@ -35,8 +37,15 @@ func TestGetBondsAllWhenTypeEmpty(t *testing.T) {
 	bonds, err := repo.GetBonds(ctx, "")
 	require.NoError(t, err)
 	require.Len(t, bonds, 2)
-	assertBondEqual(t, bonds[0], *wantA)
-	assertBondEqual(t, bonds[1], *wantB)
+
+	byIsin := make(map[string]domain.Bond, len(bonds))
+	for _, b := range bonds {
+		byIsin[b.Isin] = b
+	}
+	require.Contains(t, byIsin, wantA.Isin)
+	assertBondEqual(t, byIsin[wantA.Isin], *wantA)
+	require.Contains(t, byIsin, wantB.Isin)
+	assertBondEqual(t, byIsin[wantB.Isin], *wantB)
 }
 
 func TestGetBondsNoMatch(t *testing.T) {

@@ -22,8 +22,13 @@ func TestGetCompanies(t *testing.T) {
 	companies, err := repo.GetCompanies(ctx)
 	require.NoError(t, err)
 	require.Len(t, companies, 2)
-	assertCompanyEqual(t, companies[0], wantMCX)
-	assertCompanyEqual(t, companies[1], wantMA)
+
+	byID := make(map[string]domain.Company, len(companies))
+	for _, c := range companies {
+		byID[c.ID] = c
+	}
+	assertCompanyEqual(t, byID[wantMCX.ID], wantMCX)
+	assertCompanyEqual(t, byID[wantMA.ID], wantMA)
 }
 
 func TestGetCompaniesEmpty(t *testing.T) {
