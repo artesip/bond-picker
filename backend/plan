@@ -1,0 +1,63 @@
+# План: интеграционные тесты БД + переход на sqlc
+
+## Цель
+Зафиксировать поведение БД интеграционными тестами и (под защитой тестов) перевести
+ручной SQL на sqlc. Тесты пишутся ДО миграции — это сеть безопасности.
+
+## Текущее состояние
+- Ручной SQL в `backend/internal/adapter/postgres/*.go` (~20 методов), Pool + NamedArgs.
+- sqlc наполовину настроен: `sqlc.yaml`, пакет `gen/` есть, но НЕ импортируется (мёртвый код).
+  В `queries/` один запрос `user_exists.sql`.
+- Схема: `db/init.sql`, Postgres 18.2 (docker-compose, хост 5434). `backend/migrations` ПУСТ.
+- Тесты: только юнит (`domain/user_test.go`, бенч `moex`). testcontainers нет. testify в go.mod есть.
+
+## Решения (подтверждены)
+1. Поставщик БД: testcontainers-go + модуль `modules/postgres`, образ `postgres:18.2`
+   (нужен для `uuidv7()`), в setup прогонять `db/init.sql`.
+2. Изоляция: транзакция на тест + rollback. Repository переводим на `*gen.Queries` (DBTX),
+   тесты создают `gen.New(pool)` -> начинают tx -> инжектят в Repository -> rollback.
+3. Объём sqlc: все SELECT/INSERT/UPDATE/DELETE уходят в `.sql`. Методы с
+   TEMP TABLE + CopyFrom + ON CONFLICT (`UpsertBondsAndCompanies`, `UpsertRatings`)
+   остаются ручными.
+4. Маппинг: sqlc генерит `gen.TUser`/`gen.TBond` (pgtype), а не domain -> нужен
+   слой конвертации gen->domain в Repository. Тесты ассертят домен, не gen.
+5. Первый срез: Auth/User.
+
+## Фаза 0 — инфраструктура
+- `backend/go.mod`: добавить
+  `github.com/testcontainers/testcontainers-go` и `github.com/testcontainers/testcontainers-go/modules/postgres`.
+- `backend/internal/adapter/postgres/testdb/testdb.go`: `Run(t) (*pgxpool.Pool, error)` —
+  контейнер, ожидание готовности, `db/init.sql`.
+- Проверить, что `go test ./internal/adapter/postgres/...` поднимает контейнер (каркас).
+
+## Фаза 1 — тесты на ручной Repository (красные)
+`backend/internal/adapter/postgres/repo_test.go` (package `postgres_test`), срез Auth/User:
+- Registration -> GetUser / GetUserByID (username уникален, возвращает id).
+- IsUserExists: true / false.
+- GetUser отсутствует -> pgx.ErrNoRows.
+- HasAnyBondData: пусто / непусто.
+
+## Фаза 2 — перевод на sqlc (зелёные)
+- `queries/user_*.sql`: GetUser, GetUserByID, Registration, HasAnyBondData (+ уже есть IsUserExists).
+- `sqlc generate` -> обновить `gen/`.
+- Переписать методы Repository на `r.queries` + маппинг gen->domain.
+- Удалить ручные файлы, ушедшие в sqlc. Тесты Фазы 1 остаются зелёными.
+
+## Фаза 3 — остальные срезы (по одному за цикл)
+- Bond (read-only): GetBonds, GetBondById, GetPickedBonds, GetFullBonds.
+- Metrics: GetAllEvents, GetLastEvent, CreateUpdateEvent, ChangeUpdateEventStatus.
+- Ratings: GetAllRatings (UpsertRatings остаётся ручным).
+- Рукописи остаются: bond_upsert.go, rating_upsert.go.
+
+## Открытый вопрос
+`backend/migrations` пуст, но на него ссылаются `.env` (goose) и `sqlc.yaml`.
+Варианты:
+- (A) убрать `migrations` из `sqlc.yaml`, схема только в `db/init.sql` — проще.
+- (B) завести goose-миграции — больше работы, но переносимее.
+Решение: __<выбрать>__
+
+## Риски
+- `uuidv7()` только в PG18 -> образ `postgres:18.2` жёстко.
+- bulk-upsert (temp+CopyFrom) в sqlc не сгенерируется — это ожидаемо, 2 метода ручные.
+- `GetFullBonds` использует jsonb_build_object/COALESCE -> sqlc вернёт []byte, нужен unmarshal в domain.
+- Слой маппинга gen->domain добавит объёма; тесты проверяют domain (не привязка к sqlc).
