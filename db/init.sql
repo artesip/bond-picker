@@ -8,8 +8,6 @@ CREATE TABLE IF NOT EXISTS t_user
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
-CREATE INDEX username_indx ON t_user USING HASH (username);
-
 CREATE TABLE IF NOT EXISTS t_portfolio
 (
     id         UUID                     DEFAULT uuidv7() PRIMARY KEY,
@@ -18,8 +16,6 @@ CREATE TABLE IF NOT EXISTS t_portfolio
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
-
-CREATE INDEX user_id_indx ON t_portfolio (user_id);
 
 CREATE TABLE IF NOT EXISTS t_company
 (
@@ -96,5 +92,7 @@ CREATE TABLE IF NOT EXISTS t_rating_change
     CONSTRAINT unique_rating_change UNIQUE (company_id, agency_name, rating, date, object_name)
 );
 
-CREATE INDEX company_id_indx ON t_rating_change (company_id);
-CREATE INDEX company_id_indx ON t_bond (company_id);
+CREATE INDEX IF NOT EXISTS user_id_indx ON t_portfolio (user_id);
+CREATE INDEX IF NOT EXISTS username_indx ON t_user USING HASH (username);
+CREATE INDEX IF NOT EXISTS company_id_indx ON t_rating_change (company_id);
+CREATE INDEX IF NOT EXISTS bond_company_id_indx ON t_bond (company_id);

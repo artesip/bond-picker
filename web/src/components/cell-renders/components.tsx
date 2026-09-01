@@ -68,7 +68,6 @@ export function RatingIcon(props: ICellRendererParams) {
 
   function onLinkClick() {
     const id = props.data.id;
-    console.log(props.data);
 
     navigate({
       search: (prev) => ({

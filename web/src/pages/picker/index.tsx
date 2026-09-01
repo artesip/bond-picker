@@ -23,6 +23,7 @@ export function PickerPage({ isUserLogedIn }: PickerPageProps) {
   const mapOfRatings = getLastNotRevokedRatings(bonds?.companies || []);
 
   const filtered = (bonds?.bonds || [])
+    .filter(bond => bond.type === 'fix')
     .filter(bond => !filters.ytmEnabled || (bond.ytm >= filters.ytmFrom && bond.ytm <= filters.ytmTo))
     .filter(bond => !filters.durationEnabled ||  (bond.duration >= filters.durationFrom && bond.duration <= filters.durationTo))
     .filter(bond => !filters.currencyEnabled || bond.currencyID === filters.currency)
