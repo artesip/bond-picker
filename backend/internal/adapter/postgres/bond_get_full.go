@@ -10,7 +10,31 @@ import (
 
 func (r *Repository) GetFullBonds(ctx context.Context) (*domain.FullBonds, error) {
 	const bondQuery = `
-		SELECT *
+		SELECT
+		    id,
+		    isin,
+		    name,
+		    type,
+		    sub_type,
+		    ROUND(price::numeric, 2) AS price,
+		    ROUND(ytm::numeric, 2) AS ytm,
+		    duration,
+		    lot_size,
+		    face_value,
+		    ROUND(coupon_percent::numeric, 2) AS coupon_percent,
+		    coupon_period,
+		    next_coupon,
+		    call_option,
+		    put_option,
+		    val_today,
+		    ROUND(acruedint::numeric, 2) AS acruedint,
+		    issue_size,
+		    currency_id,
+		    board_id,
+		    company_id,
+		    mat_date,
+		    created_at,
+		    updated_at
 		FROM t_bond
 	`
 
