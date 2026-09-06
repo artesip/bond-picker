@@ -105,22 +105,6 @@ function AppLayout() {
               </BreadcrumbList>
             </Breadcrumb>
           }
-        
-          {
-            currentBreadLink && currentBreadLink.url === '/app/picker'
-              && <div className='ml-auto'>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Alert className='p-1 lg:py-2 lg:px-3'>
-                      <AlertDescription className='truncate!'>ИИ может ошибаться. Не является индивидуальной инвестиционной рекомендацией</AlertDescription>
-                    </Alert>
-                  </TooltipTrigger>
-                  <TooltipContent className='items-center'>
-                    <p>ИИ может ошибаться. Не является индивидуальной инвестиционной рекомендацией</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-          }
 
           {
             !keyRateLoading && currentBreadLink && currentBreadLink.url === '/app/chosen'

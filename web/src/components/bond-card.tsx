@@ -1,6 +1,7 @@
+import { useState } from 'react';
+import { Check, Copy } from 'lucide-react';
 import { cn } from '#/lib/utils';
 
-import { CopyButton } from './copy-button';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 
@@ -20,7 +21,31 @@ const formatNumber = (value: number) => {
   return new Intl.NumberFormat('ru').format(value);
 };
 
+const determineCompanyLogoPath = (bond: BondWithRatings) => {
+  let companyLogoPath = "";
+
+  if (bond.name.includes("ОФЗ")) {
+    companyLogoPath = "ofz"
+  } else if (bond.companyID === "") {
+    // RZD Capital P.L.C. has no inn
+    companyLogoPath = "7708503727"
+  } else {
+    companyLogoPath = bond.companyID
+  }
+
+  return companyLogoPath;
+}
+
 export const BondCard = ({ bond, className }: BondCardProps) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyIsin = async () => {
+    await navigator.clipboard.writeText(bond.isin);
+    setCopied(true);
+
+    setTimeout(() => setCopied(false), 1500);
+  };
+
   let ratingValue = null;
   let isRevoked = false;
   for (const rating of bond.ratings) {
@@ -30,16 +55,20 @@ export const BondCard = ({ bond, className }: BondCardProps) => {
     }
   }
 
+  const companyLogoPath = determineCompanyLogoPath(bond);
+
   return (
     <Card className={ cn('w-full max-w-xl shadow-md rounded-2xl mt-6', className) }>
       <CardHeader>
-        <div>
+      <div className={"flex flex-row items-center w-full"}>
+        <img src={`/logos/${companyLogoPath}.png`} alt={bond.companyID} className={'h-12 w-12 mr-2'}></img>
+        <div className={"w-full"}>
           <CardTitle className='flex text-lg font-semibold gap-2 items-center'>
             {bond.name}
 
             {ratingValue && <Badge variant='secondary' className='text-[14px]'>{ratingValue}</Badge>}
             {isRevoked && <Badge variant='destructive' className='text-[14px]'>Отозван</Badge>}
-            
+
 
             {bond.callOption && (
               <Badge variant='secondary' className='text-[14px]'>Call</Badge>
@@ -48,14 +77,19 @@ export const BondCard = ({ bond, className }: BondCardProps) => {
               <Badge variant='secondary' className='text-[14px]'>Put</Badge>
             )}
 
-            <div className='ml-auto'>
-              <CopyButton value={ bond.isin }/>
-            </div>
           </CardTitle>
-          <div className='text-sm text-muted-foreground'>
-            ISIN: {bond.isin}
-          </div>
+          <button
+            onClick={ handleCopyIsin }
+            title='Скопировать ISIN'
+            className='group flex items-center gap-1 text-sm text-muted-foreground cursor-pointer transition-colors hover:text-foreground'
+          >
+            <span>ISIN: {bond.isin}</span>
+            {copied
+              ? <Check className='h-3 w-3' />
+              : <Copy className='h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100' />}
+          </button>
         </div>
+      </div>
       </CardHeader>
 
       <CardContent className='grid grid-cols-2 gap-4 text-sm'>

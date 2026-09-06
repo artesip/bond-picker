@@ -41,7 +41,7 @@ export function PickerPage({ isUserLogedIn }: PickerPageProps) {
 
       <div className='grid content-start col-span-1 lg:col-span-3 not-lg:order-1 w-full'>
         <FilterBlock rhf={ rhf }/>
-        <span className='text-muted-foreground text-[14px] mt-2' >Облигаций {filtered.length}. Всего {bonds?.bonds.length}</span>
+        <span className='text-muted-foreground text-[14px] mt-2' >Показано {filtered.length}. Всего {bonds?.bonds.length}</span>
 
         {
           !isLoading && bonds?.bonds

@@ -87,7 +87,6 @@ export const BondChart = ({ data, isLoading, picked, isUserLogedIn }: BondChartP
               }),
               replace       : false,
               resetScroll   : false,
-              viewTransition: true,
             });
           }
         },
@@ -123,7 +122,6 @@ export const BondChart = ({ data, isLoading, picked, isUserLogedIn }: BondChartP
               }),
               replace       : false,
               resetScroll   : false,
-              viewTransition: true,
             });
           }
         },
