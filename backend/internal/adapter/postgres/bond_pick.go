@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func (r *Repository) PickBond(c context.Context, bondID, userID domain.UUID, count int) error {
+func (r *Repository) PickBond(c context.Context, bondID, userID domain.UUID) error {
 	const query = `
 		WITH portfolio_id as (
 			SELECT id
@@ -17,17 +17,13 @@ func (r *Repository) PickBond(c context.Context, bondID, userID domain.UUID, cou
 			LIMIT 1
 		)
 		
-		INSERT INTO t_portfolio_to_bond (portfolio_id, bond_id, count)
-		SELECT p.id, @bondID, @count
+		INSERT INTO t_portfolio_to_bond (portfolio_id, bond_id)
+		SELECT p.id, @bondID
 		FROM portfolio_id p
-		ON CONFLICT (portfolio_id, bond_id) DO UPDATE
-    		SET count = GREATEST(
-			    0,
-			    t_portfolio_to_bond.count + EXCLUDED.count
-			);
+		ON CONFLICT DO NOTHING
 	`
 
-	_, err := r.client.Pool.Exec(c, query, pgx.NamedArgs{"count": count, "bondID": bondID, "userID": userID})
+	_, err := r.client.Pool.Exec(c, query, pgx.NamedArgs{"bondID": bondID, "userID": userID})
 	if err != nil {
 		return fmt.Errorf("query exec error: %w", err)
 	}

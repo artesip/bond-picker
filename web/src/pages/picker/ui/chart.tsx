@@ -9,6 +9,7 @@ import { useNavigate } from '@tanstack/react-router';
 
 import { Skeleton } from '#/components/ui/skeleton';
 import { useIsMobile } from '#/hooks/use-mobile';
+import { useIsUserLoggedIn } from '#/stores/auth';
 
 import type { AgChartOptions, AgChartTheme, AgChartInstance } from 'ag-charts-community';
 import type { Bond } from '#/entities/bonds/model';
@@ -35,11 +36,11 @@ type BondChartProps = {
   data: Bond[]
   picked: Bond[]
   isLoading: boolean
-  isUserLogedIn: boolean
 }
 
-export const BondChart = ({ data, isLoading, picked, isUserLogedIn }: BondChartProps) => {
+export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
   const { theme } = useTheme();
+  const isUserLogedIn = useIsUserLoggedIn();
   const navigate = useNavigate({ from: isUserLogedIn ? '/app/picker' : '/app/watch' });
   const chartRef = useRef<AgChartInstance>(null);
 

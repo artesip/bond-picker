@@ -12,16 +12,11 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import { useBondWithRatings, usePickedBonds } from '#/entities/bonds/hooks';
+import {useBondWithRatings, usePickedBonds} from '#/entities/bonds/hooks';
 import { getBondWithRating } from '#/entities/bonds/model';
 
 import { Dialog, DialogContent } from './ui/dialog';
 import { BondCard } from './bond-card';
-import { AddChosenForm } from './add-chosen-form';
-
-type BondSearchProps = {
-  isUserLogedIn: boolean
-}
 
 const MAX_RESULTS = 50;
 
@@ -51,13 +46,13 @@ function filter(value: string, search: string) {
   return n.includes(s) ? 1 : 0;
 }
 
-export function BondSearch({ isUserLogedIn }: BondSearchProps) {
+export function BondSearch() {
   const [open, setOpen] = useState(false);
   const [bondOpen, setBondOpen] = useState(false);
   const [value, setValue] = useState('');
   const [search, setSearch] = useState('');
   const { data: bonds, isLoading } = useBondWithRatings();
-  const { refetch } = usePickedBonds(isUserLogedIn);
+  const {data: pickedBonds, isLoading: pickedBondsLoading} = usePickedBonds();
 
   const allBonds = bonds?.bonds || [];
 
@@ -71,7 +66,7 @@ export function BondSearch({ isUserLogedIn }: BondSearchProps) {
       .slice(0, MAX_RESULTS);
   }, [bonds, search]);
 
-  const bond = allBonds.find(bond =>bond.name === value);
+  const bond = allBonds.find(bond => bond.name === value);
   const bondWithRatings = getBondWithRating( bond === undefined ? '' : bond.id, allBonds, bonds?.companies || []);
 
   return (
@@ -80,17 +75,21 @@ export function BondSearch({ isUserLogedIn }: BondSearchProps) {
 
         <DialogContent showCloseButton={ false } className='bg-transparent! border-0! ring-0! gap-4'>
           {
-            bondWithRatings 
+            bondWithRatings
      && <>
-            <BondCard bond={ bondWithRatings }/>
-            { isUserLogedIn && <AddChosenForm bond={ bondWithRatings } refetch={ refetch }/> }
+            <BondCard
+              key={ bondWithRatings.id }
+              bond={ bondWithRatings }
+              refetch={() => {}}
+              isPicked={bondWithRatings ? (pickedBonds || []).some(bond => bond.id === bondWithRatings.id) : false}
+            />
           </>
           }
         </DialogContent>
       </Dialog>
 
       <Button onClick={ () => setOpen(true) } variant='ghost' className='border border-input'>
-        <Search/>
+        <Search className={'h-4'}/>
         Поиск облигаций
       </Button>
       <CommandDialog open={ open } onOpenChange={ (open) => {
@@ -99,7 +98,7 @@ export function BondSearch({ isUserLogedIn }: BondSearchProps) {
         setSearch('');
       } }>
         <Command
-          filter={ filter }    
+          filter={ filter }
         >
           <CommandInput
             value={ search }
@@ -107,7 +106,7 @@ export function BondSearch({ isUserLogedIn }: BondSearchProps) {
             placeholder='Введите имя или ISIN облигации'
           />
           <CommandList>
-            {isLoading
+            {isLoading || pickedBondsLoading
               ? (
                 <div className='flex flex-col gap-2 p-2'>
                   {Array.from({ length: 6 }).map((_, index) => (

@@ -13,6 +13,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '#/components/ui/tooltip
 import { BondSearch } from '#/components/search';
 import { useKeyRate } from '#/entities/bonds/hooks';
 import { Button } from '#/components/ui/button';
+import { useAuthStore } from '#/stores/auth';
 
 export const Route = createFileRoute('/app')({
   component: AppLayout,
@@ -34,6 +35,11 @@ const buttons = [
 function AppLayout() {
   const { pathname } = useLocation();
   const isUserLogedIn = pathname !== '/app/watch';
+  const setIsUserLoggedIn = useAuthStore((s) => s.setIsUserLoggedIn);
+
+  if (useAuthStore.getState().isUserLoggedIn !== isUserLogedIn) {
+    setIsUserLoggedIn(isUserLogedIn);
+  }
 
   const portfolios = ['default'];
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: Me, enabled: isUserLogedIn });
@@ -71,7 +77,7 @@ function AppLayout() {
           
         </SidebarContent>
         <SidebarFooter className='items-center'>
-          <BondSearch isUserLogedIn={ isUserLogedIn }/>
+          <BondSearch/>
           
           <NavUser
             user={ { username: user?.username || '', avatar: 'https://img.daisyui.com/images/profile/demo/yellingcat@192.webp' } }

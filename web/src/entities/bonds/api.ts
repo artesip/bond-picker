@@ -70,7 +70,8 @@ export async function GetBondsFull(): Promise<FullBonds> {
         matDate   : new Date(element.matDate),
         callOption: element.callOption ? new Date(element.callOption) : element.callOption,
         putOption : element.putOption ? new Date(element.putOption) : element.putOption
-      })),
+      }))
+        .filter(bond => bond.boardID === 'TQCB'),
     companies: data.companies.map((company) => ({
       ...company,
       ratings: company.ratings.map((rating) => ({
@@ -102,8 +103,8 @@ export async function GetRatings(): Promise<Rating[]> {
   return result;
 }
 
-export async function PickBond(id: string, count: number) {
-  const resp = await fetch(`/backend/api/v1/bond/pick/${id}?count=${count}`,
+export async function PickBond(id: string) {
+  const resp = await fetch(`/backend/api/v1/bond/like/${id}`,
     {
       method : 'POST',
       headers: headers,
@@ -141,8 +142,7 @@ export async function GetPicked() {
     matDate   : new Date(element.matDate),
     callOption: element.callOption ? new Date(element.callOption) : element.callOption,
     putOption : element.putOption ? new Date(element.putOption) : element.putOption
-  }))
-    .filter((element) => element.ytm <= 150.0 && element.ytm >= 0.0 && element.duration > 0.0);
+  }));
 
   return result;
 }
@@ -165,7 +165,7 @@ export async function GetKeyRate() {
 }
 
 export async function DeletePicked(id: string) {
-  const resp = await fetch(`/backend/api/v1/bond/pick/${id}`,
+  const resp = await fetch(`/backend/api/v1/bond/like/${id}`,
     {
       method : 'DELETE',
       headers: headers,

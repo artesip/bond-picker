@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
@@ -126,13 +125,7 @@ func (h *handler) PickBond(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "invalid userID")
 	}
 
-	countParam := c.QueryParam("count")
-	count, err := strconv.Atoi(countParam)
-	if err != nil || count < 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("invalid count: %v", err))
-	}
-
-	err = h.repo.PickBond(c.Request().Context(), domain.UUID(id), domain.UUID(userID), count)
+	err := h.repo.PickBond(c.Request().Context(), domain.UUID(id), domain.UUID(userID))
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -175,6 +168,6 @@ func (h *handler) InitRoutes(e *echo.Echo) {
 
 	e.GET("/api/v1/bond/rating", h.GetRatings, h.requiredMiddlewares...)
 
-	e.POST("/api/v1/bond/pick/:id", h.PickBond, unionOfMiddlewares...)
-	e.DELETE("/api/v1/bond/pick/:id", h.DeletePickedBond, unionOfMiddlewares...)
+	e.POST("/api/v1/bond/like/:id", h.PickBond, unionOfMiddlewares...)
+	e.DELETE("/api/v1/bond/like/:id", h.DeletePickedBond, unionOfMiddlewares...)
 }

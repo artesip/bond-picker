@@ -10,14 +10,14 @@ export const coldef: ColDef[] = [
   },
   {
     field     : 'price',
-    headerName: 'Цена',
+    headerName: 'Цена, %',
     filter    : 'agNumberColumnFilter',
     flex      : 1,
     minWidth  : 100,
   },
   {
     field     : 'ytm',
-    headerName: 'Доходность',
+    headerName: 'Доходность, %',
     filter    : 'agNumberColumnFilter',
     flex      : 1,
     minWidth  : 100,
@@ -31,7 +31,7 @@ export const coldef: ColDef[] = [
   },
   {
     field     : 'couponPercent',
-    headerName: 'Купон',
+    headerName: 'Купон, %',
     filter    : 'agNumberColumnFilter',
     flex      : 1,
     minWidth  : 100,
@@ -60,13 +60,6 @@ export const coldef: ColDef[] = [
     filter    : 'agNumberColumnFilter',
     flex      : 1 / 2,
     minWidth  : 100,
-  },
-  {
-    field     : 'count',
-    headerName: 'Кол-во',
-    filter    : 'agNumberColumnFilter',
-    flex      : 1 / 2,
-    minWidth  : 80,
   },
   {
     headerName  : 'Рейтинг',

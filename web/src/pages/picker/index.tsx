@@ -2,21 +2,19 @@ import { Card } from '#/components/ui/card';
 import { useBondWithRatings, usePickedBonds } from '#/entities/bonds/hooks';
 import { getLastNotRevokedRatings, inRange  } from '#/entities/bonds/model';
 import { useFilterForm } from '#/entities/bonds/shemas';
+import { useIsUserLoggedIn } from '#/stores/auth';
 
 import { BondChart } from './ui/chart';
 import { FilterBlock } from './ui/filters';
 import { ChosenBond } from './ui/chosen-bond';
 
-type PickerPageProps = {
-  isUserLogedIn: boolean
-}
-
-export function PickerPage({ isUserLogedIn }: PickerPageProps) {
+export function PickerPage() {
+  const isUserLoggedIn = useIsUserLoggedIn();
   const { rhf } = useFilterForm();
 
   const { data: bonds, isLoading: bondsLoading } = useBondWithRatings();
 
-  const { data: pickedBonds, isLoading: pickedBondsLoading, refetch } = usePickedBonds(isUserLogedIn);
+  const { data: pickedBonds, isLoading: pickedBondsLoading } = usePickedBonds(isUserLoggedIn);
 
   const filters = rhf.watch();
 
@@ -36,7 +34,7 @@ export function PickerPage({ isUserLogedIn }: PickerPageProps) {
   return (
     <div className='grid grid-cols-1 lg:grid-cols-10 h-full gap-4'>
       <Card className='grid col-span-1 lg:col-span-7 p-0 not-lg:order-2 min-h-150'>
-        <BondChart isLoading={ isLoading } data={ filtered || [] } picked={ pickedBonds || [] } isUserLogedIn={ isUserLogedIn }/>
+        <BondChart isLoading={ isLoading } data={ filtered || [] } picked={ pickedBonds || [] }/>
       </Card>
 
       <div className='grid content-start col-span-1 lg:col-span-3 not-lg:order-1 w-full'>
@@ -45,7 +43,7 @@ export function PickerPage({ isUserLogedIn }: PickerPageProps) {
 
         {
           !isLoading && bonds?.bonds
-            && <ChosenBond refetch={ refetch } isUserLogedIn={ isUserLogedIn }/>
+            && <ChosenBond/>
         }
       </div>
     </div>

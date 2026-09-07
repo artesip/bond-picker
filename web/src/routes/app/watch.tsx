@@ -13,7 +13,7 @@ export const Route = createFileRoute('/app/watch')({
 function RouteComponent() {
   return (
     <div className='h-full w-full flex flex-col'>
-      <PickerPage isUserLogedIn={ false }/>
+      <PickerPage/>
     </div>
   );
 }

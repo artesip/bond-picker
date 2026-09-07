@@ -1,27 +1,26 @@
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { AddChosenForm } from '#/components/add-chosen-form';
 import { BondCard } from '#/components/bond-card';
 import { useIsMobile } from '#/hooks/use-mobile';
 import { Drawer, DrawerContent } from '#/components/ui/drawer';
-import { useBondWithRatings } from '#/entities/bonds/hooks';
+import {useBondWithRatings, usePickedBonds} from '#/entities/bonds/hooks';
 import { getBondWithRating } from '#/entities/bonds/model';
+import { useIsUserLoggedIn } from '#/stores/auth';
 
 
-type ChosenBondProps = {
-    isUserLogedIn: boolean
-    refetch: () => void
-}
+export function ChosenBond() {
+  const isUserLoggedIn = useIsUserLoggedIn();
+  const { id } = useSearch({ from: isUserLoggedIn ? '/app/picker' : '/app/watch' });
+  const { data: pickedBonds, isLoading: pickedBondsLoading, refetch } = usePickedBonds(isUserLoggedIn);
 
-export function ChosenBond({ refetch, isUserLogedIn }: ChosenBondProps) {
-  const { id } = useSearch({ from: isUserLogedIn ? '/app/picker' : '/app/watch' });
   const isMobile = useIsMobile();
-  const navigate = useNavigate({ from: isUserLogedIn ? '/app/picker' : '/app/watch' });
+  const navigate = useNavigate({ from: isUserLoggedIn ? '/app/picker' : '/app/watch' });
 
   const { data: bonds } = useBondWithRatings();
 
   const selectedBond = getBondWithRating(id || '', bonds?.bonds || [], bonds?.companies || []);
+  const isPicked = (pickedBonds || []).some(bond => bond.id === id)
 
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -31,7 +30,7 @@ export function ChosenBond({ refetch, isUserLogedIn }: ChosenBondProps) {
     }
   }, [id, isMobile]);
 
-  if (!id || !selectedBond) {
+  if (!id || !selectedBond || pickedBondsLoading) {
     return <div></div>;
   }
 
@@ -49,8 +48,13 @@ export function ChosenBond({ refetch, isUserLogedIn }: ChosenBondProps) {
         }); 
       } }>
         <DrawerContent className='gap-4 mb-4 px-2'>
-          <BondCard bond={ selectedBond } className='bg-transparent! border-0! ring-0 shadow-none mt-0'/> 
-          { isUserLogedIn && <AddChosenForm bond={ selectedBond } refetch={ refetch }/> }
+          <BondCard
+            key={ selectedBond.id }
+            bond={ selectedBond }
+            className='bg-transparent! border-0! ring-0 shadow-none mt-0'
+            isPicked={isPicked}
+            refetch={refetch}
+          />
         </DrawerContent>
       </Drawer>
     );
@@ -58,8 +62,12 @@ export function ChosenBond({ refetch, isUserLogedIn }: ChosenBondProps) {
 
   return (
     <div className='flex flex-col gap-2'>
-      <BondCard bond={ selectedBond }/> 
-      { isUserLogedIn && <AddChosenForm bond={ selectedBond } refetch={ refetch }/> }
+      <BondCard
+        key={ selectedBond.id }
+        bond={ selectedBond }
+        isPicked={isPicked}
+        refetch={refetch}
+      />
     </div>
   );
 }

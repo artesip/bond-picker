@@ -1,15 +1,20 @@
 import { useState } from 'react';
-import { Check, Copy } from 'lucide-react';
+import {Check, Copy, Heart} from 'lucide-react';
 import { cn } from '#/lib/utils';
 
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 
 import type { BondWithRatings } from '#/entities/bonds/model';
+import {DeletePicked, PickBond} from "#/entities/bonds/api.ts";
+import {toast} from "sonner";
+import {useIsUserLoggedIn} from "#/stores/auth";
 
 type BondCardProps = {
   className?: string
   bond: BondWithRatings
+  isPicked: boolean
+  refetch: () => void
 }
 
 const formatDate = (date: Date | null) => {
@@ -36,8 +41,10 @@ const determineCompanyLogoPath = (bond: BondWithRatings) => {
   return companyLogoPath;
 }
 
-export const BondCard = ({ bond, className }: BondCardProps) => {
+export const BondCard = ({ bond, className, isPicked, refetch }: BondCardProps) => {
+  const isUserLoggedIn = useIsUserLoggedIn();
   const [copied, setCopied] = useState(false);
+  const [isBondPicked, setIsBondPicked] = useState(isPicked)
 
   const handleCopyIsin = async () => {
     await navigator.clipboard.writeText(bond.isin);
@@ -56,6 +63,30 @@ export const BondCard = ({ bond, className }: BondCardProps) => {
   }
 
   const companyLogoPath = determineCompanyLogoPath(bond);
+
+  const pickBond = async () => {
+      try {
+        await PickBond(bond.id);
+        refetch();
+        setIsBondPicked(true);
+      } catch (e) {
+        if (e instanceof Error) {
+          toast.error(e.message);
+        }
+      }
+  }
+
+  const unpickBond = async () => {
+    try {
+      await DeletePicked(bond.id)
+      refetch();
+      setIsBondPicked(false)
+    } catch (e) {
+      if (e instanceof Error) {
+        toast.error(e.message);
+      }
+    }
+  }
 
   return (
     <Card className={ cn('w-full max-w-xl shadow-md rounded-2xl mt-6', className) }>
@@ -76,6 +107,15 @@ export const BondCard = ({ bond, className }: BondCardProps) => {
             {bond.putOption && (
               <Badge variant='secondary' className='text-[14px]'>Put</Badge>
             )}
+
+            {
+                  isUserLoggedIn && <div
+                  className='group ml-auto cursor-pointer p-2 rounded-lg hover:bg-muted transition-colors'
+                  onClick={isBondPicked ? unpickBond : pickBond}
+                >
+                  <Heart className={cn('h-5', isBondPicked ? 'text-red-500 fill-red-500 opacity-100' : 'opacity-50 group-hover:text-foreground')}/>
+                </div>
+            }
 
           </CardTitle>
           <button
