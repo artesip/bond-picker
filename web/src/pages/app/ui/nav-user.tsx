@@ -4,9 +4,13 @@ import {
   CalendarClock,
   ChevronsUpDown,
   LogOut,
+  Moon,
+  Sun,
+  SunMedium,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from '@tanstack/react-router';
+import { useTheme } from 'next-themes';
 
 import {
   DropdownMenu,
@@ -40,6 +44,9 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const router = useNavigate();
+  const { theme, setTheme } = useTheme();
+
+  console.log(theme);
   
   async function onUserExit() {
     try {
@@ -79,12 +86,19 @@ export function NavUser({
               sideOffset={ 4 }
             >
               <DropdownMenuItem disabled>
-                <CalendarClock />
+                <CalendarClock className='h-5'/>
                 Обновление данных
               </DropdownMenuItem>
+
+              <DropdownMenuItem onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                { theme === 'dark' && <Sun className='h-5'/> }
+                { theme === 'light' && <Moon className='h-5'/> }
+                Переключить тему
+              </DropdownMenuItem>
+
               <DialogTrigger asChild>
                 <DropdownMenuItem>
-                  <LogOut />
+                  <LogOut className='h-5'/>
                   Выход
                 </DropdownMenuItem>
               </DialogTrigger>
