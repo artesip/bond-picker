@@ -27,8 +27,8 @@ import {
 } from '@/components/ui/avatar';
 import { Logout } from '#/entities/auth/api';
 
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { Button } from './ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../../../components/ui/dialog';
+import { Button } from '../../../components/ui/button';
 
 export function NavUser({
   user,

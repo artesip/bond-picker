@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { BondCard } from '#/components/bond-card';
 import { useIsMobile } from '#/hooks/use-mobile';
 import { Drawer, DrawerContent } from '#/components/ui/drawer';
-import {useBondWithRatings, usePickedBonds} from '#/entities/bonds/hooks';
+import { useBondWithRatings, usePickedBonds } from '#/entities/bonds/hooks';
 import { getBondWithRating } from '#/entities/bonds/model';
 import { useIsUserLoggedIn } from '#/stores/auth';
 
@@ -20,7 +20,7 @@ export function ChosenBond() {
   const { data: bonds } = useBondWithRatings();
 
   const selectedBond = getBondWithRating(id || '', bonds?.bonds || [], bonds?.companies || []);
-  const isPicked = (pickedBonds || []).some(bond => bond.id === id)
+  const isPicked = (pickedBonds || []).some(bond => bond.id === id);
 
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -40,14 +40,14 @@ export function ChosenBond() {
         setOpen(e);
         navigate({
           search: (prev) => {
-            const { id, ...rest } = prev;
+            const { ...rest } = prev;
             return rest;
           },
           resetScroll   : false,
           viewTransition: true,
         }); 
       } }>
-        <DrawerContent className='gap-4 mb-4 px-2'>
+        <DrawerContent className='gap-4 mb-4 px-2 items-center justify-center min-w-90'>
           <BondCard
             key={ selectedBond.id }
             bond={ selectedBond }

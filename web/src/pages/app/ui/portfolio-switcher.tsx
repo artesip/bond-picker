@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/sidebar';
 
 
-import { DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenu } from './ui/dropdown-menu';
+import { DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenu } from '../../../components/ui/dropdown-menu';
 
 type PortfolioSwitcherProps = {
   portfolios: string[]

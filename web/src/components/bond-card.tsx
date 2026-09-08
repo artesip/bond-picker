@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import {Check, Copy, Heart} from 'lucide-react';
+import { Check, Copy, Heart } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { cn } from '#/lib/utils';
+import { DeletePicked, PickBond } from '#/entities/bonds/api.ts';
+import { useIsUserLoggedIn } from '#/stores/auth';
 
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 
 import type { BondWithRatings } from '#/entities/bonds/model';
-import {DeletePicked, PickBond} from "#/entities/bonds/api.ts";
-import {toast} from "sonner";
-import {useIsUserLoggedIn} from "#/stores/auth";
 
 type BondCardProps = {
   className?: string
@@ -27,24 +28,24 @@ const formatNumber = (value: number) => {
 };
 
 const determineCompanyLogoPath = (bond: BondWithRatings) => {
-  let companyLogoPath = "";
+  let companyLogoPath;
 
-  if (bond.name.includes("ОФЗ")) {
-    companyLogoPath = "ofz"
-  } else if (bond.companyID === "") {
+  if (bond.name.includes('ОФЗ')) {
+    companyLogoPath = 'ofz';
+  } else if (bond.companyID === '') {
     // RZD Capital P.L.C. has no inn
-    companyLogoPath = "7708503727"
+    companyLogoPath = '7708503727';
   } else {
-    companyLogoPath = bond.companyID
+    companyLogoPath = bond.companyID;
   }
 
   return companyLogoPath;
-}
+};
 
 export const BondCard = ({ bond, className, isPicked, refetch }: BondCardProps) => {
   const isUserLoggedIn = useIsUserLoggedIn();
   const [copied, setCopied] = useState(false);
-  const [isBondPicked, setIsBondPicked] = useState(isPicked)
+  const [isBondPicked, setIsBondPicked] = useState(isPicked);
 
   const handleCopyIsin = async () => {
     await navigator.clipboard.writeText(bond.isin);
@@ -74,26 +75,26 @@ export const BondCard = ({ bond, className, isPicked, refetch }: BondCardProps) 
           toast.error(e.message);
         }
       }
-  }
+  };
 
   const unpickBond = async () => {
     try {
-      await DeletePicked(bond.id)
+      await DeletePicked(bond.id);
       refetch();
-      setIsBondPicked(false)
+      setIsBondPicked(false);
     } catch (e) {
       if (e instanceof Error) {
         toast.error(e.message);
       }
     }
-  }
+  };
 
   return (
     <Card className={ cn('w-full max-w-xl shadow-md rounded-2xl mt-6', className) }>
       <CardHeader>
-      <div className={"flex flex-row items-center w-full"}>
+      <div className={'flex flex-row items-center w-full'}>
         <img src={`/logos/${companyLogoPath}.png`} alt={bond.companyID} className={'h-12 w-12 mr-2'}></img>
-        <div className={"w-full"}>
+        <div className={'w-full'}>
           <CardTitle className='flex text-lg font-semibold gap-2 items-center'>
             {bond.name}
 

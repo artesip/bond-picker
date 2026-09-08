@@ -54,6 +54,7 @@ export async function GetBondsFull(): Promise<FullBonds> {
   }
 
   const data: FullBonds = await resp.json();
+  const today = new Date();
 
   return {
     bonds: data.bonds
@@ -71,7 +72,8 @@ export async function GetBondsFull(): Promise<FullBonds> {
         callOption: element.callOption ? new Date(element.callOption) : element.callOption,
         putOption : element.putOption ? new Date(element.putOption) : element.putOption
       }))
-        .filter(bond => bond.boardID === 'TQCB'),
+      .filter(bond => bond.boardID === 'TQCB')
+      .filter(bond => bond.matDate >= today),
     companies: data.companies.map((company) => ({
       ...company,
       ratings: company.ratings.map((rating) => ({

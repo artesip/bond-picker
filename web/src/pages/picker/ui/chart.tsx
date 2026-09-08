@@ -86,8 +86,8 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
                 ...prev,
                 id: String(id),
               }),
-              replace       : false,
-              resetScroll   : false,
+              replace    : false,
+              resetScroll: false,
             });
           }
         },
@@ -121,8 +121,8 @@ export const BondChart = ({ data, isLoading, picked }: BondChartProps) => {
                 ...prev,
                 id: String(id),
               }),
-              replace       : false,
-              resetScroll   : false,
+              replace    : false,
+              resetScroll: false,
             });
           }
         },

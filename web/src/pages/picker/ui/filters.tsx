@@ -1,6 +1,6 @@
 import { useWatch  } from 'react-hook-form';
 
-import { useBonds, useRatings } from '#/entities/bonds/hooks';
+import { useBondWithRatings, useRatings } from '#/entities/bonds/hooks';
 import { compareRatings } from '#/entities/bonds/model';
 
 import { FilterToggles } from './filters/toggles';
@@ -19,7 +19,7 @@ type FilterBlockProps = {
 
 export function FilterBlock({ rhf }: FilterBlockProps) {
   const { data: ratings, isLoading: ratingLoading } = useRatings();
-  const { data: bonds, isLoading: bondsLoading } = useBonds();
+  const { data: bondsWithRatings, isLoading: bondsLoading } = useBondWithRatings();
 
   const filters = useWatch({
     control: rhf.control,
@@ -39,6 +39,8 @@ export function FilterBlock({ rhf }: FilterBlockProps) {
     currencyEnabled
   ] = filters;
 
+  const bonds = bondsWithRatings?.bonds || [];
+
   const ratingValues = Array.from(
     new Set((ratings ?? []).map(el => el.ratingValue))
   ).sort(compareRatings).filter(r => r !== '');
@@ -47,7 +49,7 @@ export function FilterBlock({ rhf }: FilterBlockProps) {
     new Set((bonds ?? []).map(el => el.currencyID))
   );
 
-  const ytmMax = Math.max(...bonds?.map(bond => bond.ytm) || []) > 150 ? Math.max(...bonds?.map(bond => bond.ytm) || []) : 150;
+  const ytmMax = 150;
   const duraionMax = Math.max(...bonds?.map(bond => bond.duration) || []) > 15 ? Math.max(...bonds?.map(bond => bond.duration) || []) : 15;
 
   return (

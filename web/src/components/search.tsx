@@ -12,7 +12,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import {useBondWithRatings, usePickedBonds} from '#/entities/bonds/hooks';
+import { useBondWithRatings, usePickedBonds } from '#/entities/bonds/hooks';
 import { getBondWithRating } from '#/entities/bonds/model';
 
 import { Dialog, DialogContent } from './ui/dialog';
@@ -52,7 +52,7 @@ export function BondSearch() {
   const [value, setValue] = useState('');
   const [search, setSearch] = useState('');
   const { data: bonds, isLoading } = useBondWithRatings();
-  const {data: pickedBonds, isLoading: pickedBondsLoading} = usePickedBonds();
+  const { data: pickedBonds, isLoading: pickedBondsLoading } = usePickedBonds();
 
   const allBonds = bonds?.bonds || [];
 
