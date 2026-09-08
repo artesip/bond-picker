@@ -8,6 +8,9 @@ import { useIsUserLoggedIn } from '#/stores/auth';
 
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
+import { TooltipTrigger, TooltipContent, Tooltip } from './ui/tooltip';
+import { Button } from './ui/button';
+import { WithTooltip } from './with-tooltip';
 
 import type { BondWithRatings } from '#/entities/bonds/model';
 
@@ -89,101 +92,161 @@ export const BondCard = ({ bond, className, isPicked, refetch }: BondCardProps) 
     }
   };
 
+  const logosClass = cn('transition grayscale hover:grayscale-0');
+
   return (
-    <Card className={ cn('w-full max-w-xl shadow-md rounded-2xl mt-6', className) }>
-      <CardHeader>
-      <div className={'flex flex-row items-center w-full'}>
-        <img src={`/logos/${companyLogoPath}.png`} alt={bond.companyID} className={'h-12 w-12 mr-2'}></img>
-        <div className={'w-full'}>
-          <CardTitle className='flex text-lg font-semibold gap-2 items-center'>
-            {bond.name}
+    <>
+      <Card className={ cn('w-full max-w-xl shadow-md rounded-2xl mt-6', className) }>
+        <CardHeader>
+        <div className={'flex flex-row items-center w-full'}>
+          <img src={`/logos/${companyLogoPath}.png`} alt={bond.companyID} className={'h-12 w-12 mr-2'}></img>
+          <div className={'w-full'}>
+            <CardTitle className='flex text-lg font-semibold gap-2 items-center'>
+              {bond.name}
 
-            {ratingValue && <Badge variant='secondary' className='text-[14px]'>{ratingValue}</Badge>}
-            {isRevoked && <Badge variant='destructive' className='text-[14px]'>Отозван</Badge>}
+              {ratingValue && !isRevoked && <Badge variant='secondary' className='text-[14px]'>{ratingValue}</Badge>}
+              {
+                isRevoked 
+                && <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant='destructive' className='text-[14px]'>{ratingValue}</Badge>
+                  </TooltipTrigger>
+                  <TooltipContent className='items-center'>
+                    <p>Текущий показываемый рейтинг был отозван</p>
+                  </TooltipContent>
+                </Tooltip>
+              }
 
 
-            {bond.callOption && (
-              <Badge variant='secondary' className='text-[14px]'>Call</Badge>
-            )}
-            {bond.putOption && (
-              <Badge variant='secondary' className='text-[14px]'>Put</Badge>
-            )}
+              {
+                bond.callOption && (
+                  <Badge variant='secondary' className='text-[14px]'>Call</Badge>
+                )
+              }
+              {
+                bond.putOption && (
+                  <Badge variant='secondary' className='text-[14px]'>Put</Badge>
+                )
+              }
 
-            {
-                  isUserLoggedIn && <div
-                  className='group ml-auto cursor-pointer p-2 rounded-lg hover:bg-muted transition-colors'
-                  onClick={isBondPicked ? unpickBond : pickBond}
-                >
-                  <Heart className={cn('h-5', isBondPicked ? 'text-red-500 fill-red-500 opacity-100' : 'opacity-50 group-hover:text-foreground')}/>
-                </div>
-            }
+              {
+                isUserLoggedIn && <div
+                className='group ml-auto cursor-pointer p-2 rounded-lg hover:bg-muted transition-colors'
+                onClick={isBondPicked ? unpickBond : pickBond}
+              >
+                <Heart className={cn('h-5', isBondPicked ? 'text-red-500 fill-red-500 opacity-100' : 'opacity-50 group-hover:text-foreground')}/>
+              </div>
+              }
 
-          </CardTitle>
-          <button
-            onClick={ handleCopyIsin }
-            title='Скопировать ISIN'
-            className='group flex items-center gap-1 text-sm text-muted-foreground cursor-pointer transition-colors hover:text-foreground'
-          >
-            <span>ISIN: {bond.isin}</span>
-            {copied
-              ? <Check className='h-3 w-3' />
-              : <Copy className='h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100' />}
-          </button>
+            </CardTitle>
+            <button
+              onClick={ handleCopyIsin }
+              title='Скопировать ISIN'
+              className='group flex items-center gap-1 text-sm text-muted-foreground cursor-pointer transition-colors hover:text-foreground'
+            >
+              <span>ISIN: {bond.isin}</span>
+              {copied
+                ? <Check className='h-3 w-3' />
+                : <Copy className='h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100' />}
+            </button>
+          </div>
         </div>
+        </CardHeader>
+
+        <CardContent className='grid grid-cols-2 gap-4 text-sm'>
+          <div>
+            <span className='text-muted-foreground'>Цена:</span>
+            <div>{bond.price.toFixed(2)}</div>
+          </div>
+
+          <div>
+            <span className='text-muted-foreground'>YTM:</span>
+            <div>{bond.ytm.toFixed(2)}%</div>
+          </div>
+
+          <div>
+            <span className='text-muted-foreground'>Дюрация:</span>
+            <div>{bond.duration.toFixed(2)}</div>
+          </div>
+
+          <div>
+            <span className='text-muted-foreground'>Купон / Частота:</span>
+            <div>{bond.couponPercent}% / {bond.couponPeriod}</div>
+          </div>
+
+          <div>
+            <span className='text-muted-foreground'>Номинал:</span>
+            <div>{formatNumber(bond.faceValue)}</div>
+          </div>
+
+          <div>
+            <span className='text-muted-foreground'>НКД:</span>
+            <div>{bond.acruedint.toFixed(2)}</div>
+          </div>
+
+          <div>
+            <span className='text-muted-foreground'>Следующий купон:</span>
+            <div>{formatDate(bond.nextCoupon)}</div>
+          </div>
+
+          <div>
+            <span className='text-muted-foreground'>Погашение:</span>
+            <div>{formatDate(bond.matDate)}</div>
+          </div>
+
+          <div>
+            <span className='text-muted-foreground'>Размер лота:</span>
+            <div>{bond.lotSize}</div>
+          </div>
+
+          <div>
+            <span className='text-muted-foreground'>Размер выпуска:</span>
+            <div>{formatNumber(bond.issueSize)} шт.</div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <div className='w-full flex justify-center'>
+        <WithTooltip text='Т-Банк' side='bottom'>
+          <Button asChild variant={'ghost'} className={logosClass}>
+            <a href={'https://www.tbank.ru/invest/bonds/' + bond.isin} target='_blank' className='w-fit'>
+              <img src='/companies/tbank.svg' alt='tbank' className='h-5'/>
+            </a>
+          </Button>
+        </WithTooltip>
+        
+        <WithTooltip text='Альфа-Банк' side='bottom'>
+          <Button asChild variant={'ghost'} className={logosClass}>
+            <a href={'https://alfabank.ru/alfa-investor/bonds/t/' + bond.isin} target='_blank' className='w-fit'>
+              <img src='/companies/alpha.svg' alt='alpha' className='h-5'/>
+            </a>
+          </Button>
+        </WithTooltip>
+
+        <WithTooltip text='Финам Инвестиции' side='bottom'>
+          <Button asChild variant={'ghost'} className={logosClass}>
+            <a href={'https://www.finam.ru/quote/moex/' + bond.isin} target='_blank' className='w-fit'>
+              <img src='/companies/finam.svg' alt='finam' className='h-5'/>
+            </a>
+          </Button>
+        </WithTooltip>
+        
+        <WithTooltip text='Мосбиржа' side='bottom'>
+          <Button asChild variant={'ghost'} className={logosClass}>
+            <a href={'https://www.moex.com/ru/issue.aspx?board=' + bond.boardID + '&code=' + bond.isin} target='_blank' className='w-fit'>
+              <img src='/companies/moex.svg' alt='moex' className='h-5'/>
+            </a>
+          </Button>
+        </WithTooltip>
+        
+        <WithTooltip text='Smart-Lab' side='bottom'>
+          <Button asChild variant={'ghost'} className={logosClass}>
+            <a href={'https://smart-lab.ru/q/bonds/' + bond.isin} target='_blank' className='w-fit'>
+              <img src='/companies/smart-lab.ico' alt='smart-lab' className='h-5'/>
+            </a>
+          </Button>
+        </WithTooltip>
       </div>
-      </CardHeader>
-
-      <CardContent className='grid grid-cols-2 gap-4 text-sm'>
-        <div>
-          <span className='text-muted-foreground'>Цена:</span>
-          <div>{bond.price.toFixed(2)}</div>
-        </div>
-
-        <div>
-          <span className='text-muted-foreground'>YTM:</span>
-          <div>{bond.ytm.toFixed(2)}%</div>
-        </div>
-
-        <div>
-          <span className='text-muted-foreground'>Дюрация:</span>
-          <div>{bond.duration.toFixed(2)}</div>
-        </div>
-
-        <div>
-          <span className='text-muted-foreground'>Купон / Частота:</span>
-          <div>{bond.couponPercent}% / {bond.couponPeriod}</div>
-        </div>
-
-        <div>
-          <span className='text-muted-foreground'>Номинал:</span>
-          <div>{formatNumber(bond.faceValue)}</div>
-        </div>
-
-        <div>
-          <span className='text-muted-foreground'>НКД:</span>
-          <div>{bond.acruedint.toFixed(2)}</div>
-        </div>
-
-        <div>
-          <span className='text-muted-foreground'>Следующий купон:</span>
-          <div>{formatDate(bond.nextCoupon)}</div>
-        </div>
-
-        <div>
-          <span className='text-muted-foreground'>Погашение:</span>
-          <div>{formatDate(bond.matDate)}</div>
-        </div>
-
-        <div>
-          <span className='text-muted-foreground'>Размер лота:</span>
-          <div>{bond.lotSize}</div>
-        </div>
-
-        <div>
-          <span className='text-muted-foreground'>Размер выпуска:</span>
-          <div>{formatNumber(bond.issueSize)} шт.</div>
-        </div>
-      </CardContent>
-    </Card>
+    </>
   );
 };

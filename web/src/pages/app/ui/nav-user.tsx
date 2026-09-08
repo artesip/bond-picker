@@ -6,7 +6,6 @@ import {
   LogOut,
   Moon,
   Sun,
-  SunMedium,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from '@tanstack/react-router';
