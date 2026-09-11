@@ -31,6 +31,11 @@ type RatingResponse struct {
 	Errors []Errors         `json:"errors"`
 }
 
+type KRItem struct {
+	Date string `xml:"DT" json:"date"`
+	Rate string `xml:"Rate" json:"rate"`
+}
+
 type KeyRateResponse struct {
 	XMLName xml.Name `xml:"Envelope"`
 	Body    struct {
@@ -38,12 +43,33 @@ type KeyRateResponse struct {
 			XMLName xml.Name `xml:"http://web.cbr.ru/ KeyRateXMLResponse"`
 			Result  struct {
 				KeyRate struct {
-					Items []struct {
-						Date string `xml:"DT"`
-						Rate string `xml:"Rate"`
-					} `xml:"KR"`
+					Items []KRItem `xml:"KR"`
 				} `xml:"KeyRate"`
 			} `xml:"KeyRateXMLResult"`
 		} `xml:"KeyRateXMLResponse"`
 	} `xml:"Body"`
 }
+
+type RuoniaItem struct {
+	Date string `xml:"D0" json:"date"`
+	Rate string `xml:"ruo" json:"rate"`
+}
+
+type RuoniaResponse struct {
+	XMLName xml.Name `xml:"Envelope"`
+	Body    struct {
+		RuoniaXMLResponse struct {
+			XMLName         xml.Name `xml:"http://web.cbr.ru/ RuoniaXMLResponse"`
+			RuoniaXMLResult struct {
+				Ruonia struct {
+					Items []RuoniaItem `xml:"ro"`
+				} `xml:"Ruonia"`
+			} `xml:"RuoniaXMLResult"`
+		} `xml:"RuoniaXMLResponse"`
+	} `xml:"Body"`
+}
+
+type XmlPayloadType = string
+
+const keyRate XmlPayloadType = "keyRate"
+const ruoniaRate XmlPayloadType = "ruoniaRate"

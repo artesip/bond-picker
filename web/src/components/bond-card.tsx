@@ -8,7 +8,6 @@ import { useIsUserLoggedIn } from '#/stores/auth';
 
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
-import { TooltipTrigger, TooltipContent, Tooltip } from './ui/tooltip';
 import { Button } from './ui/button';
 import { WithTooltip } from './with-tooltip';
 
@@ -21,13 +20,16 @@ type BondCardProps = {
   refetch: () => void
 }
 
+const dateFormatter = new Intl.DateTimeFormat('ru');
+const numberFormatter = new Intl.NumberFormat('ru');
+
 const formatDate = (date: Date | null) => {
   if (!date) return '—';
-  return new Intl.DateTimeFormat('ru').format(new Date(date));
+  return dateFormatter.format(new Date(date));
 };
 
 const formatNumber = (value: number) => {
-  return new Intl.NumberFormat('ru').format(value);
+  return numberFormatter.format(value);
 };
 
 const determineCompanyLogoPath = (bond: BondWithRatings) => {
@@ -106,15 +108,10 @@ export const BondCard = ({ bond, className, isPicked, refetch }: BondCardProps) 
 
               {ratingValue && !isRevoked && <Badge variant='secondary' className='text-[14px]'>{ratingValue}</Badge>}
               {
-                isRevoked 
-                && <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge variant='destructive' className='text-[14px]'>{ratingValue}</Badge>
-                  </TooltipTrigger>
-                  <TooltipContent className='items-center'>
-                    <p>Текущий показываемый рейтинг был отозван</p>
-                  </TooltipContent>
-                </Tooltip>
+                isRevoked
+                && <WithTooltip text={'Текущий показываемый рейтинг был отозван'}>
+                  <Badge variant='destructive' className='text-[14px]'>{ratingValue}</Badge>
+                </WithTooltip>
               }
 
 

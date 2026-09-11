@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegistrationRouteImport } from './routes/registration'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppChosenRouteImport } from './routes/app/chosen'
+import { Route as AppKeyRateRouteImport } from './routes/app/key-rate'
 import { Route as AppPickerRouteImport } from './routes/app/picker'
 import { Route as AppWatchRouteImport } from './routes/app/watch'
 
@@ -42,6 +43,11 @@ const AppChosenRoute = AppChosenRouteImport.update({
   path: '/chosen',
   getParentRoute: () => AppRoute,
 } as any)
+const AppKeyRateRoute = AppKeyRateRouteImport.update({
+  id: '/key-rate',
+  path: '/key-rate',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPickerRoute = AppPickerRouteImport.update({
   id: '/picker',
   path: '/picker',
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/registration': typeof RegistrationRoute
   '/app/chosen': typeof AppChosenRoute
+  '/app/key-rate': typeof AppKeyRateRoute
   '/app/picker': typeof AppPickerRoute
   '/app/watch': typeof AppWatchRoute
   '/app/': typeof AppIndexRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/registration': typeof RegistrationRoute
   '/app/chosen': typeof AppChosenRoute
+  '/app/key-rate': typeof AppKeyRateRoute
   '/app/picker': typeof AppPickerRoute
   '/app/watch': typeof AppWatchRoute
   '/app': typeof AppIndexRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/registration': typeof RegistrationRoute
   '/app/chosen': typeof AppChosenRoute
+  '/app/key-rate': typeof AppKeyRateRoute
   '/app/picker': typeof AppPickerRoute
   '/app/watch': typeof AppWatchRoute
   '/app/': typeof AppIndexRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/registration'
     | '/app/chosen'
+    | '/app/key-rate'
     | '/app/picker'
     | '/app/watch'
     | '/app/'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/registration'
     | '/app/chosen'
+    | '/app/key-rate'
     | '/app/picker'
     | '/app/watch'
     | '/app'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/registration'
     | '/app/chosen'
+    | '/app/key-rate'
     | '/app/picker'
     | '/app/watch'
     | '/app/'
@@ -152,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppChosenRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/key-rate': {
+      id: '/app/key-rate'
+      path: '/key-rate'
+      fullPath: '/app/key-rate'
+      preLoaderRoute: typeof AppKeyRateRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/picker': {
       id: '/app/picker'
       path: '/picker'
@@ -171,6 +190,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppChosenRoute: typeof AppChosenRoute
+  AppKeyRateRoute: typeof AppKeyRateRoute
   AppPickerRoute: typeof AppPickerRoute
   AppWatchRoute: typeof AppWatchRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -178,6 +198,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppChosenRoute: AppChosenRoute,
+  AppKeyRateRoute: AppKeyRateRoute,
   AppPickerRoute: AppPickerRoute,
   AppWatchRoute: AppWatchRoute,
   AppIndexRoute: AppIndexRoute,

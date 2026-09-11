@@ -2,6 +2,7 @@ package main
 
 import (
 	postgres2 "backend/internal/adapter/postgres"
+	"backend/internal/analitics"
 	"backend/internal/auth"
 	"backend/internal/bond"
 	"backend/internal/metrics"
@@ -99,6 +100,7 @@ func coreInit() (svc.Core, error) {
 		metrics.NewHandler(bondUseCase, repo, log, requiredMiddlewares, optionalMiddlewares),
 		bond.NewHandler(repo, log, requiredMiddlewares, optionalMiddlewares),
 		auth.NewHandler(log, repo, privateKey, authUseCase, requiredMiddlewares, optionalMiddlewares),
+		analitics.NewHandler(repo, log, requiredMiddlewares, optionalMiddlewares),
 	}
 
 	servers := []svc.Server{

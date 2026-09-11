@@ -1,7 +1,7 @@
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { useRatings } from '#/entities/bonds/hooks';
+import { useRatings } from '#/entities/bonds/hook';
 import { Drawer, DrawerContent, DrawerHeader } from '#/components/ui/drawer';
 
 import { RatingItem } from './rating-item';

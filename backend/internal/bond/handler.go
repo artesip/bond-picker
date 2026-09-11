@@ -3,7 +3,6 @@ package bond
 import (
 	"backend/internal/adapter/postgres"
 	"backend/internal/domain"
-	"backend/pkg/cbr"
 	"backend/pkg/jwt"
 	"backend/pkg/svc"
 	"fmt"
@@ -104,15 +103,6 @@ func (h *handler) GetRatings(c *echo.Context) error {
 	return c.JSON(http.StatusOK, ratings)
 }
 
-func (h *handler) GetKeyRate(c *echo.Context) error {
-	rate, err := cbr.GetKeyRate(c.Request().Context())
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-
-	return c.JSON(http.StatusOK, rate)
-}
-
 func (h *handler) PickBond(c *echo.Context) error {
 	id := c.Param("id")
 
@@ -161,7 +151,6 @@ func (h *handler) InitRoutes(e *echo.Echo) {
 	e.GET("/api/v1/bond/full", h.GetFullBonds, h.requiredMiddlewares...)
 	e.GET("/api/v1/bond/pick", h.GetPickedBond, unionOfMiddlewares...)
 	e.GET("/api/v1/bond/:id", h.GetBond, h.requiredMiddlewares...)
-	e.GET("/api/v1/bond/key-rate", h.GetKeyRate, h.requiredMiddlewares...)
 
 	e.GET("/api/v1/bond/company", h.GetCompanies, h.requiredMiddlewares...)
 	e.GET("/api/v1/bond/company/:id", h.GetCompany, h.requiredMiddlewares...)

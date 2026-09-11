@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
-import { GetBonds, GetBondsFull, GetKeyRate, GetPicked, GetRatings } from './api';
+import { GetBonds, GetBondsFull, GetPicked, GetRatings } from './api';
 
 export function useBonds() {
   return useQuery({
@@ -25,15 +25,6 @@ export function useRatings() {
   return useQuery({
     queryKey       : ['ratings'],
     queryFn        : GetRatings,
-    staleTime      : 1000 * 60,
-    placeholderData: keepPreviousData,
-  });
-}
-
-export function useKeyRate() {
-  return useQuery({
-    queryKey       : ['key-rate'],
-    queryFn        : GetKeyRate,
     staleTime      : 1000 * 60,
     placeholderData: keepPreviousData,
   });

@@ -1,17 +1,18 @@
-import { useNavigate, useSearch } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
 import { BondCard } from '#/components/bond-card';
 import { useIsMobile } from '#/hooks/use-mobile';
 import { Drawer, DrawerContent } from '#/components/ui/drawer';
-import { useBondWithRatings, usePickedBonds } from '#/entities/bonds/hooks';
+import { useBondWithRatings, usePickedBonds } from '#/entities/bonds/hook';
 import { getBondWithRating } from '#/entities/bonds/model';
 import { useIsUserLoggedIn } from '#/stores/auth';
+import { useSelectedBondId } from '#/stores/selected-bond';
 
 
 export function ChosenBond() {
   const isUserLoggedIn = useIsUserLoggedIn();
-  const { id } = useSearch({ from: isUserLoggedIn ? '/app/picker' : '/app/watch' });
+  const id = useSelectedBondId();
   const { data: pickedBonds, isLoading: pickedBondsLoading, refetch } = usePickedBonds(isUserLoggedIn);
 
   const isMobile = useIsMobile();

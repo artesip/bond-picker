@@ -56,6 +56,7 @@ func NewServer(handlers []svc.Handler, config config.ServerConfig, logger *slog.
 		},
 		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
 	}))
+	e.Use(middleware.ContextTimeout(5 * time.Second))
 
 	sc := echo.StartConfig{
 		Address:         ":" + strconv.Itoa(config.Port),

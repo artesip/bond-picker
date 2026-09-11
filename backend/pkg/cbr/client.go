@@ -107,21 +107,11 @@ func clearRatings(ratings []Rating) []Rating {
 	return result
 }
 
-func GetKeyRate(ctx context.Context) (string, error) {
-	layout := "2006-01-02T00:00:00"
+func GetLastKeyRate(ctx context.Context) (string, error) {
 	now := time.Now()
-	todayStr := now.Format(layout)
-	fromStr := now.AddDate(0, 0, -7).Format(layout)
+	from := now.AddDate(0, 0, -7)
 
-	payload := fmt.Sprintf(`<?xml version="1.0" encoding="utf-8"?>
-<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
-  <soap12:Body>
-    <KeyRateXML xmlns="http://web.cbr.ru/">
-      <fromDate>%s</fromDate>
-      <ToDate>%s</ToDate>
-    </KeyRateXML>
-  </soap12:Body>
-</soap12:Envelope>`, fromStr, todayStr)
+	payload := generateXmlPayload(keyRate, from, now)
 
 	headers := make(map[string]string)
 	headers["Content-Type"] = "application/soap+xml; charset=utf-8"
@@ -133,8 +123,94 @@ func GetKeyRate(ctx context.Context) (string, error) {
 
 	rates := res.Body.KeyRateXMLResponse.Result.KeyRate.Items
 	if len(rates) == 0 {
-		return "", fmt.Errorf("ставка на дату %s не найдена", todayStr)
+		return "", fmt.Errorf("ставка на указанную дату не найдена")
 	}
 
 	return rates[0].Rate, nil
+}
+
+func GetKeyRatesWithDates(ctx context.Context, from, to time.Time) ([]KRItem, error) {
+	payload := generateXmlPayload(keyRate, from, to)
+
+	headers := make(map[string]string)
+	headers["Content-Type"] = "application/soap+xml; charset=utf-8"
+
+	res, err := fetcher.DoXml[KeyRateResponse](ctx, fetcher.Post, keyRateUrl, bytes.NewBufferString(payload), headers)
+	if err != nil {
+		return []KRItem{}, err
+	}
+
+	rates := res.Body.KeyRateXMLResponse.Result.KeyRate.Items
+	if len(rates) == 0 {
+		return []KRItem{}, fmt.Errorf("ставка на указанную дату не найдена")
+	}
+
+	return rates, nil
+}
+
+func GetKeyRates(ctx context.Context) ([]KRItem, error) {
+	return GetKeyRatesWithDates(
+		ctx,
+		time.Date(2013, 9, 17, 0, 0, 0, 0, time.UTC),
+		time.Now(),
+	)
+}
+
+func GetRuoniaWithDates(ctx context.Context, from, to time.Time) ([]RuoniaItem, error) {
+	payload := generateXmlPayload(ruoniaRate, from, to)
+
+	headers := make(map[string]string)
+	headers["Content-Type"] = "application/soap+xml; charset=utf-8"
+
+	res, err := fetcher.DoXml[RuoniaResponse](ctx, fetcher.Post, keyRateUrl, bytes.NewBufferString(payload), headers)
+	if err != nil {
+		return []RuoniaItem{}, err
+	}
+
+	rates := res.Body.RuoniaXMLResponse.RuoniaXMLResult.Ruonia.Items
+	if len(rates) == 0 {
+		return []RuoniaItem{}, fmt.Errorf("ставка на указанную дату не найдена")
+	}
+
+	return rates, nil
+}
+
+func GetRuonia(ctx context.Context) ([]RuoniaItem, error) {
+	return GetRuoniaWithDates(
+		ctx,
+		time.Date(2013, 9, 17, 0, 0, 0, 0, time.UTC),
+		time.Now(),
+	)
+}
+
+func generateXmlPayload(payloadType string, from, to time.Time) string {
+	layout := "2006-01-02T00:00:00"
+	fromStr := from.Format(layout)
+	toStr := to.Format(layout)
+
+	if payloadType == keyRate {
+		return fmt.Sprintf(`<?xml version="1.0" encoding="utf-8"?>
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+  <soap12:Body>
+    <KeyRateXML xmlns="http://web.cbr.ru/">
+      <fromDate>%s</fromDate>
+      <ToDate>%s</ToDate>
+    </KeyRateXML>
+  </soap12:Body>
+</soap12:Envelope>`, fromStr, toStr)
+	}
+
+	if payloadType == ruoniaRate {
+		return fmt.Sprintf(`<?xml version="1.0" encoding="utf-8"?>
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+  <soap12:Body>
+    <RuoniaXML xmlns="http://web.cbr.ru/">
+      <fromDate>%s</fromDate>
+      <ToDate>%s</ToDate>
+    </RuoniaXML>
+  </soap12:Body>
+</soap12:Envelope>`, fromStr, toStr)
+	}
+
+	return ""
 }

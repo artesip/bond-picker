@@ -5,7 +5,7 @@ import { useLocation, Outlet, Link } from '@tanstack/react-router';
 import { NavUser } from '#/pages/app/ui/nav-user';
 import { PortfolioSwitcher } from '#/pages/app/ui/portfolio-switcher';
 import { BondSearch } from '#/components/search';
-import { SidebarProvider, SidebarHeader, SidebarContent, SidebarGroup, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, Sidebar } from '#/components/ui/sidebar';
+import { SidebarProvider, SidebarHeader, SidebarContent, SidebarGroup, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, Sidebar, SidebarGroupLabel } from '#/components/ui/sidebar';
 import { Me } from '#/entities/auth/api';
 import { useAuthStore } from '#/stores/auth';
 
@@ -24,8 +24,6 @@ export function App() {
   const portfolios = ['default'];
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: Me, enabled: isUserLogedIn });
 
-  
-
   return (
     <SidebarProvider className='h-screen'>
       {isUserLogedIn && <Sidebar variant='floating'>
@@ -37,7 +35,29 @@ export function App() {
           <SidebarGroup>
             <SidebarMenu>
               {
-                buttons.map(item => 
+                buttons.base.map(item => 
+                  <SidebarMenuItem key={ item.title }>
+                    <SidebarMenuButton asChild className='text-[16px]'>
+                      <Link
+                        to={ item.url }
+                        activeProps={ { className: 'bg-sidebar-accent text-sidebar-accent-foreground' } }
+                        preload={'intent'}
+                      >
+                        {item.icon}
+                        {item.title}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              }
+            </SidebarMenu>
+          </SidebarGroup>
+
+          <SidebarGroup>
+            <SidebarGroupLabel>Аналитика</SidebarGroupLabel>
+            <SidebarMenu>
+              {
+                buttons.analitics.map(item => 
                   <SidebarMenuItem key={ item.title }>
                     <SidebarMenuButton asChild className='text-[16px]'>
                       <Link

@@ -149,23 +149,6 @@ export async function GetPicked() {
   return result;
 }
 
-export async function GetKeyRate() {
-  const resp = await fetch('/backend/api/v1/bond/key-rate',
-    {
-      method : 'GET',
-      headers: headers,
-    }
-  );
-
-  if (!resp.ok) {
-    throw Error('Ошибка получения ключевой ставки');
-  }
-
-  const stringKeyRate: string = await resp.json();
-
-  return Number.parseFloat(stringKeyRate);
-}
-
 export async function DeletePicked(id: string) {
   const resp = await fetch(`/backend/api/v1/bond/like/${id}`,
     {

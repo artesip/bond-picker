@@ -12,7 +12,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import { useBondWithRatings, usePickedBonds } from '#/entities/bonds/hooks';
+import { useBondWithRatings, usePickedBonds } from '#/entities/bonds/hook';
 import { getBondWithRating } from '#/entities/bonds/model';
 
 import { Dialog, DialogContent } from './ui/dialog';

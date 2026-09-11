@@ -1,6 +1,6 @@
 import { useWatch  } from 'react-hook-form';
 
-import { useBondWithRatings, useRatings } from '#/entities/bonds/hooks';
+import { useBondWithRatings, useRatings } from '#/entities/bonds/hook';
 import { compareRatings } from '#/entities/bonds/model';
 
 import { FilterToggles } from './filters/toggles';

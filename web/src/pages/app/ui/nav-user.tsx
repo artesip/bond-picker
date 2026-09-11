@@ -44,8 +44,6 @@ export function NavUser({
   const { isMobile } = useSidebar();
   const router = useNavigate();
   const { theme, setTheme } = useTheme();
-
-  console.log(theme);
   
   async function onUserExit() {
     try {
